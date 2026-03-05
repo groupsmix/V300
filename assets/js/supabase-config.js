@@ -7,6 +7,23 @@ if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
 } else {
     document.addEventListener('DOMContentLoaded', function () {
         var el = document.getElementById('main-content');
-        if (el) el.innerHTML = '<div style="text-align:center;padding:4rem 1rem"><h1>Service Unavailable</h1><p style="margin-top:1rem;color:#999">Unable to load required resources. Please refresh the page or try again later.</p><button onclick="location.reload()" style="margin-top:1rem;padding:0.5rem 1.5rem;cursor:pointer">Retry</button></div>';
+        if (el) {
+            el.textContent = '';
+            var wrapper = document.createElement('div');
+            wrapper.style.cssText = 'text-align:center;padding:4rem 1rem';
+            var h1 = document.createElement('h1');
+            h1.textContent = 'Service Unavailable';
+            var p = document.createElement('p');
+            p.style.cssText = 'margin-top:1rem;color:#999';
+            p.textContent = 'Unable to load required resources. Please refresh the page or try again later.';
+            var btn = document.createElement('button');
+            btn.style.cssText = 'margin-top:1rem;padding:0.5rem 1.5rem;cursor:pointer';
+            btn.textContent = 'Retry';
+            btn.addEventListener('click', function() { location.reload(); });
+            wrapper.appendChild(h1);
+            wrapper.appendChild(p);
+            wrapper.appendChild(btn);
+            el.appendChild(wrapper);
+        }
     });
 }
