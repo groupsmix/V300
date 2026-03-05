@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate — GroupsMix</title>
+    <meta name="description" content="Support GroupsMix with a donation. Help us keep the platform free and ad-light.">
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    </noscript>
+    <link rel="stylesheet" href="/assets/css/shared.css">
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header id="site-header"></header>
+    <div id="announcement-bar"></div>
+    <main id="main-content">
+        <div class="container" style="max-width:var(--container-md);padding:var(--space-8) var(--space-4)">
+            <div style="text-align:center;margin-bottom:var(--space-8)">
+                <h1>❤️ Support GroupsMix</h1>
+                <p style="color:var(--text-secondary);margin-top:var(--space-3)">Help us keep GroupsMix free and
+                    ad-light</p>
+            </div>
+            <div class="card" style="max-width:500px;margin:0 auto">
+                <div class="card__body" style="padding:var(--space-6)">
+                    <div class="form-group"><label class="form-label">Display Name</label><input type="text"
+                            class="form-input" id="donate-name" value="Anonymous" maxlength="50"></div>
+                    <div class="form-group"><label class="form-label">Message (optional)</label><textarea
+                            class="form-textarea" id="donate-message" placeholder="Leave a message..." maxlength="500"
+                            style="min-height:80px"></textarea></div>
+                    <div class="form-group"><label class="form-label">Currency</label>
+                        <select class="form-select" id="donate-currency">
+                            <option value="btc">Bitcoin (BTC)</option>
+                            <option value="usdt">USDT</option>
+                            <option value="sol">Solana</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Amount (USD equivalent)</label><input
+                            type="number" class="form-input" id="donate-amount" min="1" step="0.01" placeholder="5.00">
+                    </div>
+                    <div class="form-group"><label class="form-label">Send to:</label>
+                        <div class="form-input" id="donate-wallet"
+                            style="word-break:break-all;height:auto;cursor:pointer" title="Click to copy">Loading...
+                        </div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Transaction Hash *</label><input type="text"
+                            class="form-input" id="donate-tx" placeholder="Paste tx hash"></div>
+                    <button class="btn btn-primary btn-full" id="donate-submit">💖 Submit Donation</button>
+                </div>
+            </div>
+            <section class="section">
+                <h2 style="text-align:center;margin-bottom:var(--space-6)">Recent Supporters</h2>
+                <div id="supporters-list">
+                    <div class="skeleton" style="height:200px"></div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer id="site-footer"></footer>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <div id="modal-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/assets/js/supabase-config.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateWallet();
+            document.getElementById('donate-currency')?.addEventListener('change', updateWallet);
+            document.getElementById('donate-wallet')?.addEventListener('click', function () { UI.copyToClipboard(this.textContent); });
+            document.getElementById('donate-submit')?.addEventListener('click', submitDonation);
+            loadSupporters();
+        });
+
+        function updateWallet() {
+            const c = document.getElementById('donate-currency')?.value || 'btc';
+            document.getElementById('donate-wallet').textContent = CONFIG.cryptoWallets[c] || 'Not configured';
+        }
+
+        async function submitDonation() {
+            const amount = parseFloat(document.getElementById('donate-amount')?.value);
+            const txHash = document.getElementById('donate-tx')?.value?.trim();
+            if (!amount || amount <= 0) { UI.toast('Please enter a valid amount', 'error'); return; }
+            if (!txHash) { UI.toast('Please enter the transaction hash', 'error'); return; }
+            const btn = document.getElementById('donate-submit');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span>'; }
+            const result = await DB.donations.submit({
+                display_name: document.getElementById('donate-name')?.value?.trim() || 'Anonymous',
+                message: document.getElementById('donate-message')?.value?.trim() || '',
+                currency: document.getElementById('donate-currency')?.value || 'btc',
+                amount, tx_hash: txHash
+            });
+            if (result) { UI.toast('Thank you for your donation! 💖', 'success'); document.getElementById('donate-tx').value = ''; }
+            if (btn) { btn.disabled = false; btn.textContent = '💖 Submit Donation'; }
+        }
+
+        async function loadSupporters() {
+            const el = document.getElementById('supporters-list');
+            try {
+                const data = await DB.donations.getVerified({ limit: 10 });
+                if (!data?.length) { el.innerHTML = '<div style="text-align:center;color:var(--text-tertiary);padding:var(--space-6)">Be the first supporter!</div>'; return; }
+                el.innerHTML = data.map(d => '<div style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-3) 0;border-bottom:1px solid var(--border-primary)">' +
+                    '<div><strong>' + Security.sanitize(d.display_name || 'Anonymous') + '</strong>' +
+                    (d.message ? '<div style="font-size:var(--text-sm);color:var(--text-secondary)">' + Security.sanitize(d.message) + '</div>' : '') +
+                    '</div><span style="color:var(--accent-primary);font-weight:var(--font-bold)">' + UI.formatCurrency(d.amount) + '</span></div>').join('');
+            } catch { el.innerHTML = '<div style="text-align:center;color:var(--text-tertiary)">Unable to load</div>'; }
+        }
+    </script>
+</body>
+
+</html>

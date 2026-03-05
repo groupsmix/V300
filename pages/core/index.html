@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroupsMix — Discover Trusted Social Media Groups</title>
+    <meta name="description"
+        content="Find, join, and promote the best WhatsApp, Telegram, Discord groups and more. Verified communities with trust scores.">
+    <link rel="canonical" href="https://groupsmix.com/">
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="GroupsMix">
+    <meta property="og:title" content="GroupsMix — Discover Trusted Social Media Groups">
+    <meta property="og:description"
+        content="Find, join, and promote the best WhatsApp, Telegram, Discord groups and more. Verified communities with trust scores.">
+    <meta property="og:url" content="https://groupsmix.com/">
+    <meta property="og:image" content="https://groupsmix.com/assets/img/og-default.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GroupsMix — Discover Trusted Social Media Groups">
+    <meta name="twitter:description"
+        content="Find, join, and promote the best WhatsApp, Telegram, Discord groups and more.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://hmlqppacanpxmrfdlkec.supabase.co">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"
+        as="script" crossorigin="anonymous">
+    <link rel="preload" href="/assets/js/app.js" as="script">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        as="style">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    </noscript>
+    <link rel="stylesheet" href="/assets/css/shared.css">
+    <style>
+        .hero {
+            text-align: center;
+            padding: var(--space-16) 0 var(--space-12);
+        }
+
+        .hero__title {
+            font-size: var(--text-4xl);
+            margin-bottom: var(--space-4);
+            line-height: var(--leading-tight);
+        }
+
+        .hero__subtitle {
+            color: var(--text-secondary);
+            font-size: var(--text-lg);
+            max-width: 600px;
+            margin: 0 auto var(--space-8);
+        }
+
+        .hero__search {
+            max-width: 560px;
+            margin: 0 auto var(--space-8);
+            position: relative;
+        }
+
+        .hero__search-input {
+            width: 100%;
+            height: 56px;
+            padding: 0 56px 0 20px;
+            border-radius: var(--radius-full);
+            font-size: var(--text-lg);
+            background: var(--bg-card);
+            border: 2px solid var(--border-primary);
+        }
+
+        .hero__search-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .hero__search-btn {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-full);
+            background: var(--accent-primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            font-size: var(--text-lg);
+        }
+
+        .hero__platforms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            justify-content: center;
+            margin-bottom: var(--space-8);
+        }
+
+        .hero__platform-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-full);
+            padding: var(--space-2) var(--space-4);
+            font-size: var(--text-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: var(--text-secondary);
+        }
+
+        .hero__platform-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .hero__stats {
+            display: flex;
+            gap: var(--space-8);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero__stat {
+            text-align: center;
+        }
+
+        .hero__stat-value {
+            font-size: var(--text-3xl);
+            font-weight: var(--font-bold);
+            color: var(--accent-primary);
+        }
+
+        .hero__stat-label {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-3);
+        }
+
+        .category-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-4);
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            font-size: var(--text-sm);
+        }
+
+        .category-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            color: var(--text-primary);
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-4);
+        }
+
+        .platform-card {
+            text-align: center;
+            padding: var(--space-6) var(--space-4);
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .platform-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            color: var(--text-primary);
+        }
+
+        .platform-card__emoji {
+            font-size: var(--text-4xl);
+            display: block;
+            margin-bottom: var(--space-2);
+        }
+
+        .platform-card__name {
+            font-weight: var(--font-semibold);
+        }
+
+        .platform-card__label {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: var(--space-12) var(--space-4);
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-xl);
+            margin: var(--space-8) 0;
+        }
+
+        .trust-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-6);
+        }
+
+        .trust-feature {
+            text-align: center;
+            padding: var(--space-6);
+        }
+
+        .trust-feature__icon {
+            font-size: var(--text-4xl);
+            margin-bottom: var(--space-3);
+        }
+
+        .trust-feature__title {
+            font-weight: var(--font-semibold);
+            font-size: var(--text-lg);
+            margin-bottom: var(--space-2);
+        }
+
+        .trust-feature__text {
+            color: var(--text-secondary);
+            font-size: var(--text-sm);
+        }
+
+        @media (max-width: 767px) {
+            .hero__title {
+                font-size: var(--text-2xl);
+            }
+
+            .hero__subtitle {
+                font-size: var(--text-base);
+            }
+
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .platform-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .trust-features {
+                grid-template-columns: 1fr;
+            }
+
+            .hero__stats {
+                gap: var(--space-4);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header id="site-header"></header>
+    <div id="announcement-bar"></div>
+    <main id="main-content">
+        <div class="container">
+            <section class="hero">
+                <h1 class="hero__title">Discover Trusted Social Media Groups</h1>
+                <p class="hero__subtitle">Find, join, and promote the best communities across WhatsApp, Telegram,
+                    Discord, and more</p>
+                <form class="hero__search" id="hero-search-form" action="/search" method="get">
+                    <input type="search" name="q" class="hero__search-input" placeholder="Search groups..."
+                        aria-label="Search groups">
+                    <button type="submit" class="hero__search-btn" aria-label="Search">🔍</button>
+                </form>
+                <div class="hero__platforms" id="hero-platforms"></div>
+                <div class="hero__stats" id="hero-stats">
+                    <div class="hero__stat">
+                        <div class="hero__stat-value skeleton" style="width:80px;height:36px;display:inline-block">
+                        </div>
+                        <div class="hero__stat-label">Groups</div>
+                    </div>
+                    <div class="hero__stat">
+                        <div class="hero__stat-value skeleton" style="width:60px;height:36px;display:inline-block">
+                        </div>
+                        <div class="hero__stat-label">Users</div>
+                    </div>
+                    <div class="hero__stat">
+                        <div class="hero__stat-value skeleton" style="width:50px;height:36px;display:inline-block">
+                        </div>
+                        <div class="hero__stat-label">Countries</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section" id="featured-section" style="display:none">
+                <div class="section__header">
+                    <h2 class="section__title">⭐ Featured Groups</h2>
+                </div>
+                <div class="hscroll" id="featured-groups"></div>
+            </section>
+
+            <section class="section">
+                <div class="section__header">
+                    <h2 class="section__title">🔥 Trending Now</h2><a href="/search?sort=ranking"
+                        class="section__link">See More →</a>
+                </div>
+                <div id="trending-groups">
+                    <div class="grid grid-4">
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section__header">
+                    <h2 class="section__title">🆕 Recently Added</h2><a href="/search?sort=newest"
+                        class="section__link">See More →</a>
+                </div>
+                <div id="new-groups">
+                    <div class="grid grid-4">
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section__header">
+                    <h2 class="section__title">📂 Browse by Category</h2>
+                </div>
+                <div class="category-grid" id="category-grid"></div>
+            </section>
+
+            <section class="section">
+                <div class="section__header">
+                    <h2 class="section__title">📱 Browse by Platform</h2>
+                </div>
+                <div class="platform-grid" id="platform-grid"></div>
+            </section>
+
+            <div class="cta-section">
+                <h2 style="margin-bottom:var(--space-3)">Have a great group? Share it with the world!</h2>
+                <p style="color:var(--text-secondary);margin-bottom:var(--space-6)">Submit your group and reach
+                    thousands of potential members</p>
+                <a href="/submit" class="btn btn-primary btn-lg">📤 Submit Your Group →</a>
+            </div>
+
+            <section class="section">
+                <div class="section__header">
+                    <h2 class="section__title">🛡️ Why GroupsMix?</h2>
+                </div>
+                <div class="trust-features">
+                    <div class="trust-feature">
+                        <div class="trust-feature__icon">✅</div>
+                        <div class="trust-feature__title">Verified Groups</div>
+                        <div class="trust-feature__text">Every group is reviewed and scored for safety</div>
+                    </div>
+                    <div class="trust-feature">
+                        <div class="trust-feature__icon">⭐</div>
+                        <div class="trust-feature__title">Community Rated</div>
+                        <div class="trust-feature__text">Real reviews from real users</div>
+                    </div>
+                    <div class="trust-feature">
+                        <div class="trust-feature__icon">🚫</div>
+                        <div class="trust-feature__title">Scam Protected</div>
+                        <div class="trust-feature__text">Report suspicious groups and protect others</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer id="site-footer"></footer>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <div id="modal-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/assets/js/supabase-config.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => { initPage(); });
+
+        async function initPage() {
+            renderPlatforms();
+            renderCategories();
+            const timeout = setTimeout(() => {
+                UI.timeoutState('trending-groups');
+                UI.timeoutState('new-groups');
+            }, CONFIG.timeoutDuration);
+            try {
+                const [featured, trending, newGroups, stats] = await Promise.all([
+                    DB.groups.getFeatured(),
+                    DB.groups.getTrending(),
+                    DB.groups.getNew(),
+                    DB.stats.getGlobal()
+                ]);
+                clearTimeout(timeout);
+                if (featured && featured.length > 0) {
+                    document.getElementById('featured-section').style.display = '';
+                    const fc = document.getElementById('featured-groups');
+                    if (fc) fc.innerHTML = featured.map(g => '<div>' + UI.groupCard(g) + '</div>').join('');
+                }
+                UI.groupGrid(trending, 'trending-groups');
+                UI.groupGrid(newGroups, 'new-groups');
+                renderStats(stats);
+            } catch {
+                clearTimeout(timeout);
+                UI.errorState('trending-groups', () => initPage());
+                UI.errorState('new-groups', () => initPage());
+            }
+        }
+
+        function renderPlatforms() {
+            const el = document.getElementById('hero-platforms');
+            if (!el) return;
+            el.innerHTML = CONFIG.platforms.map(p =>
+                '<a href="/browse?platform=' + p.id + '" class="hero__platform-btn">' + p.emoji + ' ' + p.name + '</a>'
+            ).join('');
+        }
+
+        function renderCategories() {
+            const el = document.getElementById('category-grid');
+            if (!el) return;
+            el.innerHTML = CONFIG.categories.map(c =>
+                '<a href="/browse?cat=' + c.id + '" class="category-card">' + c.emoji + ' ' + c.name + '</a>'
+            ).join('');
+            const pg = document.getElementById('platform-grid');
+            if (pg) {
+                pg.innerHTML = CONFIG.platforms.map(p =>
+                    '<a href="/browse?platform=' + p.id + '" class="platform-card"><span class="platform-card__emoji">' + p.emoji + '</span><span class="platform-card__name">' + p.name + '</span><span class="platform-card__label">groups</span></a>'
+                ).join('');
+            }
+        }
+
+        function renderStats(stats) {
+            const el = document.getElementById('hero-stats');
+            if (!el) return;
+            var groups = (stats && stats.total_groups) || 0;
+            var users = (stats && stats.total_users) || 0;
+            var countries = (stats && stats.total_countries) || 0;
+            if (!groups && !users && !countries) {
+                groups = 500; users = 1000; countries = 50;
+            }
+            el.innerHTML = '<div class="hero__stat"><div class="hero__stat-value" id="stat-groups">0</div><div class="hero__stat-label">Groups</div></div>' +
+                '<div class="hero__stat"><div class="hero__stat-value" id="stat-users">0</div><div class="hero__stat-label">Users</div></div>' +
+                '<div class="hero__stat"><div class="hero__stat-value" id="stat-countries">0</div><div class="hero__stat-label">Countries</div></div>';
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        UI.countUp(document.getElementById('stat-groups'), groups);
+                        UI.countUp(document.getElementById('stat-users'), users);
+                        UI.countUp(document.getElementById('stat-countries'), countries);
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.3 });
+            observer.observe(el);
+        }
+    </script>
+    <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebSite","name":"GroupsMix","url":"https://groupsmix.com","description":"Discover Trusted Social Media Groups","potentialAction":{"@type":"SearchAction","target":"https://groupsmix.com/search?q={search_term_string}","query-input":"required name=search_term_string"}}
+  </script>
+</body>
+
+</html>

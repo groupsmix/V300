@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — GroupsMix</title>
+    <meta name="description" content="Your GroupsMix dashboard. View your stats, groups, and notifications.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    </noscript>
+    <link rel="stylesheet" href="/assets/css/shared.css">
+    <style>
+        .dashboard {
+            max-width: var(--container-lg);
+            margin: 0 auto;
+            padding: var(--space-8) var(--space-4);
+        }
+
+        .profile-card {
+            display: flex;
+            gap: var(--space-6);
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .profile-card__avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            background: var(--accent-primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-3xl);
+            flex-shrink: 0;
+        }
+
+        .profile-card__info {
+            flex: 1;
+        }
+
+        .profile-card__name {
+            font-size: var(--text-xl);
+            font-weight: var(--font-bold);
+        }
+
+        .profile-card__level {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            margin-top: var(--space-1);
+        }
+
+        .gxp-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            margin-top: var(--space-2);
+            overflow: hidden;
+        }
+
+        .gxp-bar__fill {
+            height: 100%;
+            background: var(--accent-primary);
+            border-radius: var(--radius-full);
+            transition: width 0.8s ease;
+        }
+
+        .notif-item {
+            display: flex;
+            gap: var(--space-3);
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid var(--border-primary);
+            cursor: pointer;
+            transition: background 0.15s ease;
+            align-items: flex-start;
+        }
+
+        .notif-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .notif-item--unread {
+            background: var(--accent-primary-light);
+        }
+
+        @media (max-width: 640px) {
+            .profile-card {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header id="site-header"></header>
+    <div id="announcement-bar"></div>
+    <main id="main-content">
+        <div class="dashboard" id="dashboard"></div>
+    </main>
+    <footer id="site-footer"></footer>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <div id="modal-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/assets/js/supabase-config.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
+                    if (!document.getElementById('dashboard').innerHTML.includes('badge')) {
+                        initDashboard();
+                    }
+                }
+            });
+        });
+        async function initDashboard() {
+            if (!Auth.isLoggedIn()) { UI.authModal('signin'); return; }
+            const user = Auth.getUser();
+            if (!user) { setTimeout(initDashboard, 500); return; }
+            const level = Algorithms.getLevelInfo(user.gxp || 0);
+            const db = document.getElementById('dashboard');
+            db.innerHTML =
+                '<h1 style="margin-bottom:var(--space-6)">📊 Dashboard</h1>' +
+                '<div class="profile-card">' +
+                '<div class="profile-card__avatar">' + (user.display_name || 'U').charAt(0).toUpperCase() + '</div>' +
+                '<div class="profile-card__info">' +
+                '<div class="profile-card__name">' + Security.sanitize(user.display_name || 'User') + '</div>' +
+                '<div class="profile-card__level">' + level.emoji + ' Level ' + level.level + ' — ' + level.name + ' · ' + UI.formatNumber(user.gxp || 0) + ' GXP</div>' +
+                '<div class="gxp-bar"><div class="gxp-bar__fill" style="width:' + Math.round(level.progress * 100) + '%"></div></div>' +
+                '<div style="font-size:var(--text-xs);color:var(--text-tertiary);margin-top:4px">' + (level.progress < 1 ? (UI.formatNumber(level.nextLevelGxp - (user.gxp || 0)) + ' GXP to next level') : 'Max level reached!') + '</div>' +
+                '</div>' +
+                '<button class="btn btn-secondary btn-sm" id="edit-profile-btn">✏️ Edit</button>' +
+                '</div>' +
+                '<div class="grid grid-3" style="margin-bottom:var(--space-6)">' +
+                '<a href="/my-groups" class="stat-card" style="text-decoration:none;color:inherit"><div class="stat-card__value" id="my-groups-count">—</div><div class="stat-card__label">My Groups</div></a>' +
+                '<a href="/saved" class="stat-card" style="text-decoration:none;color:inherit"><div class="stat-card__value">' + Saved.count() + '</div><div class="stat-card__label">Saved</div></a>' +
+                '<div class="stat-card"><div class="stat-card__value">' + (user.unread_notifications || 0) + '</div><div class="stat-card__label">Notifications</div></div>' +
+                '</div>' +
+                '<section class="section"><h2 style="margin-bottom:var(--space-4)">🔔 Recent Notifications</h2>' +
+                '<div class="card"><div class="card__body" style="padding:0" id="notifications-list"><div class="skeleton" style="height:200px"></div></div></div>' +
+                '<div style="text-align:center;margin-top:var(--space-4)"><button class="btn btn-secondary btn-sm" id="mark-all-read">Mark All Read</button></div>' +
+                '</section>' +
+                '<section class="section"><h2 style="margin-bottom:var(--space-4)">⏱️ Recently Viewed</h2><div id="recent-list"></div></section>';
+
+            document.getElementById('edit-profile-btn')?.addEventListener('click', openEditProfile);
+            document.getElementById('mark-all-read')?.addEventListener('click', async () => {
+                await DB.notifications.markAllRead(user.id);
+                UI.toast('All notifications marked as read', 'success');
+                loadNotifications();
+            });
+            loadMyGroupsCount();
+            loadNotifications();
+            renderRecentlyViewed();
+        }
+
+        async function loadMyGroupsCount() {
+            try {
+                const groups = await DB.groups.getByUser(Auth.getUserId());
+                const el = document.getElementById('my-groups-count');
+                if (el) el.textContent = groups?.length || 0;
+            } catch { }
+        }
+
+        async function loadNotifications() {
+            const el = document.getElementById('notifications-list');
+            try {
+                const { data } = await DB.notifications.getByUser(Auth.getUserId(), { limit: 10 });
+                if (!data?.length) { el.innerHTML = '<div style="padding:var(--space-6);text-align:center;color:var(--text-tertiary)">No notifications yet</div>'; return; }
+                el.innerHTML = data.map(n => {
+                    const t = CONFIG.notificationTypes[n.type] || CONFIG.notificationTypes.info;
+                    return '<div class="notif-item' + (n.read ? '' : ' notif-item--unread') + '" data-id="' + n.id + '"' + (n.link ? ' data-link="' + Security.sanitize(n.link) + '"' : '') + '>' +
+                        '<span style="font-size:var(--text-lg)">' + t.icon + '</span>' +
+                        '<div style="flex:1"><div style="font-weight:var(--font-semibold);font-size:var(--text-sm)">' + Security.sanitize(n.title || t.title) + '</div>' +
+                        '<div style="font-size:var(--text-sm);color:var(--text-secondary)">' + Security.sanitize(n.message || '') + '</div>' +
+                        '<div style="font-size:var(--text-xs);color:var(--text-tertiary);margin-top:2px">' + UI.formatDate(n.created_at) + '</div></div></div>';
+                }).join('');
+                el.querySelectorAll('.notif-item').forEach(item => {
+                    item.addEventListener('click', async () => {
+                        await DB.notifications.markRead(item.dataset.id);
+                        item.classList.remove('notif-item--unread');
+                        if (item.dataset.link) window.location.href = item.dataset.link;
+                    });
+                });
+            } catch { el.innerHTML = '<div style="padding:var(--space-4);text-align:center;color:var(--text-tertiary)">Unable to load</div>'; }
+        }
+
+        function renderRecentlyViewed() {
+            const el = document.getElementById('recent-list');
+            const recent = RecentlyViewed.getAll();
+            if (!recent.length) { el.innerHTML = '<div style="color:var(--text-tertiary);font-size:var(--text-sm)">No recently viewed groups</div>'; return; }
+            el.innerHTML = '<div class="grid grid-4">' + recent.slice(0, 8).map(g =>
+                '<a href="/group?id=' + g.id + '" class="card card--clickable"><div class="card__body" style="padding:var(--space-3)">' +
+                '<div style="font-weight:var(--font-semibold);font-size:var(--text-sm)">' + Security.sanitize(g.name) + '</div>' +
+                '<div style="font-size:var(--text-xs);color:var(--text-tertiary)">' + Security.sanitize(g.platform || '') + '</div>' +
+                '</div></a>'
+            ).join('') + '</div>';
+        }
+
+        function openEditProfile() {
+            const user = Auth.getUser();
+            UI.modal({
+                title: '✏️ Edit Profile',
+                content: '<div class="form-group"><label class="form-label">Display Name</label><input type="text" class="form-input" id="edit-name" value="' + Security.sanitize(user?.display_name || '') + '" maxlength="50"></div>',
+                footer: '<button class="btn btn-secondary" id="cancel-profile">Cancel</button><button class="btn btn-primary" id="save-profile">Save</button>',
+                size: 'small'
+            });
+            document.getElementById('cancel-profile')?.addEventListener('click', UI.closeModal);
+            document.getElementById('save-profile')?.addEventListener('click', async () => {
+                const name = document.getElementById('edit-name')?.value?.trim();
+                if (!name || name.length < 2) { UI.toast('Name must be at least 2 characters', 'error'); return; }
+                const ok = await DB.user.updateProfile(Auth.getUserId(), { display_name: name });
+                if (ok) { UI.toast('Profile updated!', 'success'); UI.closeModal(); CACHE.remove('user_profile'); location.reload(); }
+            });
+        }
+    </script>
+</body>
+
+</html>

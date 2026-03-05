@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio Generator — GroupsMix</title>
+    <meta name="description"
+        content="Free group bio generator. Create engaging descriptions for your social media groups.">
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    </noscript>
+    <link rel="stylesheet" href="/assets/css/shared.css">
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header id="site-header"></header>
+    <div id="announcement-bar"></div>
+    <main id="main-content">
+        <div class="container" style="max-width:var(--container-sm);padding:var(--space-8) var(--space-4)">
+            <h1 style="text-align:center;margin-bottom:var(--space-2)">📝 Bio Generator</h1>
+            <p style="text-align:center;color:var(--text-secondary);margin-bottom:var(--space-8)">Create engaging group
+                descriptions</p>
+            <div class="card">
+                <div class="card__body" style="padding:var(--space-6)">
+                    <div class="form-group"><label class="form-label">Group Name</label><input type="text"
+                            class="form-input" id="bio-name" placeholder="My Awesome Group" maxlength="100"></div>
+                    <div class="form-group"><label class="form-label">Category</label><select class="form-select"
+                            id="bio-category">
+                            <option value="">Select</option>
+                        </select></div>
+                    <div class="form-group"><label class="form-label">Tone</label><select class="form-select"
+                            id="bio-tone">
+                            <option value="professional">Professional</option>
+                            <option value="friendly">Friendly</option>
+                            <option value="exciting">Exciting</option>
+                            <option value="informative">Informative</option>
+                        </select></div>
+                    <div class="form-group"><label class="form-label">Keywords (comma separated)</label><input
+                            type="text" class="form-input" id="bio-keywords"
+                            placeholder="e.g. networking, learning, support"></div>
+                    <button class="btn btn-primary btn-full" id="bio-generate">✨ Generate Bio</button>
+                    <div id="bio-result" style="margin-top:var(--space-6);display:none">
+                        <h3 style="margin-bottom:var(--space-3)">Generated Bio</h3>
+                        <div class="form-textarea" id="bio-output"
+                            style="min-height:120px;background:var(--bg-tertiary);border:1px solid var(--border-primary);padding:var(--space-4);border-radius:var(--radius-md)">
+                        </div>
+                        <div style="display:flex;gap:var(--space-3);margin-top:var(--space-3)">
+                            <button class="btn btn-secondary btn-sm" id="bio-regenerate">🔄 Regenerate</button>
+                            <button class="btn btn-primary btn-sm" id="bio-copy">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer id="site-footer"></footer>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <div id="modal-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/assets/js/supabase-config.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cs = document.getElementById('bio-category');
+            CONFIG.categories.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.emoji + ' ' + c.name; cs.appendChild(o); });
+            document.getElementById('bio-generate')?.addEventListener('click', generate);
+            document.getElementById('bio-copy')?.addEventListener('click', () => UI.copyToClipboard(document.getElementById('bio-output').textContent));
+            document.getElementById('bio-regenerate')?.addEventListener('click', generate);
+        });
+        function generate() {
+            const name = document.getElementById('bio-name')?.value?.trim() || 'Our Group';
+            const cat = CONFIG.categories.find(c => c.id === document.getElementById('bio-category')?.value)?.name || 'community';
+            const tone = document.getElementById('bio-tone')?.value || 'professional';
+            const keywords = document.getElementById('bio-keywords')?.value?.split(',').map(k => k.trim()).filter(k => k) || [];
+            const templates = {
+                professional: ['Welcome to {name} — a trusted {cat} community for professionals and enthusiasts.', 'Join {name} to connect with like-minded individuals passionate about {cat}.', '{name} is your go-to resource for quality {cat} discussions and insights.'],
+                friendly: ['Hey there! 👋 Welcome to {name}! We\'re a friendly {cat} community.', 'Join {name} and be part of our amazing {cat} family! Everyone is welcome.', '{name} — where {cat} lovers come together. Come say hi!'],
+                exciting: ['🚀 {name} — the ULTIMATE {cat} community! Don\'t miss out!', 'Join {name} NOW and become part of the hottest {cat} group! 🔥', '⚡ {name}: Where {cat} meets excitement! Join the movement!'],
+                informative: ['{name} provides curated {cat} content, discussions, and resources.', 'Stay informed with {name} — your daily source of {cat} knowledge.', '{name}: Educational {cat} community with verified information and expert insights.']
+            };
+            const pool = templates[tone] || templates.professional;
+            let bio = pool[Math.floor(Math.random() * pool.length)].replace(/\{name\}/g, name).replace(/\{cat\}/g, cat.toLowerCase());
+            if (keywords.length) bio += ' Topics include: ' + keywords.join(', ') + '.';
+            bio += '\n\n📌 Rules: Be respectful • No spam • Stay on topic\n🔗 Invite your friends • Share knowledge • Grow together';
+            document.getElementById('bio-output').textContent = bio;
+            document.getElementById('bio-result').style.display = '';
+        }
+    </script>
+</body>
+
+</html>

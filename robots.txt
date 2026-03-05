@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /my-groups
+Disallow: /saved
+Disallow: /settings
+Disallow: /reset-password
+Sitemap: https://groupsmix.com/sitemap.xml

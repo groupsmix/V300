@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store | GroupsMix</title>
+    <meta name="description" content="Shop official GroupsMix merchandise and premium group assets.">
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="/assets/css/shared.css">
+    <style>
+        .store-badge {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            font-size: var(--text-xs);
+            font-weight: var(--font-bold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: var(--space-2);
+        }
+
+        .price-tag {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-bold);
+            color: var(--text-primary);
+            margin: var(--space-3) 0;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header id="site-header"></header>
+    <div id="announcement-bar"></div>
+
+    <main id="main-content" class="page-container">
+        <div class="content-wrapper">
+            <div class="section__header"
+                style="flex-direction:column;align-items:center;text-align:center;margin-bottom:var(--space-8)">
+                <div style="font-size:var(--text-4xl);margin-bottom:var(--space-3)">🛒</div>
+                <h1 class="page-title">GroupsMix Store</h1>
+                <p style="color:var(--text-secondary);max-width:600px">Premium assets, verified checks, and exclusive
+                    perks to make your group stand out.</p>
+            </div>
+
+            <div class="grid grid-3">
+                <!-- Verified Badge -->
+                <div class="card">
+                    <div class="card__body" style="text-align:center;padding:var(--space-6)">
+                        <div class="store-badge">Best Seller</div>
+                        <div style="font-size:var(--text-5xl);margin-bottom:var(--space-4)">✅</div>
+                        <h3 style="margin-bottom:var(--space-2)">Verified Group Tick</h3>
+                        <p style="color:var(--text-secondary);font-size:var(--text-sm);min-height:40px">Get the official
+                            blue checkmark next to your group's name across the entire platform.</p>
+                        <div class="price-tag">$19.99<span
+                                style="font-size:var(--text-sm);color:var(--text-tertiary);font-weight:normal">/one-time</span>
+                        </div>
+                        <button class="btn btn-primary btn-full"
+                            data-toast="Store payments are currently disabled.">Purchase</button>
+                    </div>
+                </div>
+
+                <!-- Premium Border -->
+                <div class="card" style="border: 2px solid var(--accent-primary)">
+                    <div class="card__body" style="text-align:center;padding:var(--space-6)">
+                        <div class="store-badge" style="background:var(--accent-primary);color:#fff">Subscription</div>
+                        <div style="font-size:var(--text-5xl);margin-bottom:var(--space-4)">✨</div>
+                        <h3 style="margin-bottom:var(--space-2)">Premium Styling</h3>
+                        <p style="color:var(--text-secondary);font-size:var(--text-sm);min-height:40px">Animate your
+                            group card with a glowing border and custom background color.</p>
+                        <div class="price-tag">$4.99<span
+                                style="font-size:var(--text-sm);color:var(--text-tertiary);font-weight:normal">/month</span>
+                        </div>
+                        <button class="btn btn-primary btn-full"
+                            data-toast="Store payments are currently disabled.">Subscribe</button>
+                    </div>
+                </div>
+
+                <!-- Search Boost -->
+                <div class="card">
+                    <div class="card__body" style="text-align:center;padding:var(--space-6)">
+                        <div class="store-badge" style="background:#10B981;color:#fff">One-Time</div>
+                        <div style="font-size:var(--text-5xl);margin-bottom:var(--space-4)">🚀</div>
+                        <h3 style="margin-bottom:var(--space-2)">Search Boost Token</h3>
+                        <p style="color:var(--text-secondary);font-size:var(--text-sm);min-height:40px">Bump your
+                            group's ranking in search results and category pages for 24 hours.</p>
+                        <div class="price-tag">$2.99<span
+                                style="font-size:var(--text-sm);color:var(--text-tertiary);font-weight:normal">/each</span>
+                        </div>
+                        <button class="btn btn-primary btn-full"
+                            data-toast="Store payments are currently disabled.">Purchase</button>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style="margin-top:var(--space-8);padding:var(--space-6);background:var(--bg-tertiary);border-radius:var(--radius-lg);text-align:center">
+                <h3 style="margin-bottom:var(--space-2)">Looking to Advertise?</h3>
+                <p style="color:var(--text-secondary);margin-bottom:var(--space-4)">We offer banner placements and
+                    sitewide takeovers for agencies and large networks.</p>
+                <a href="/advertise" class="btn btn-secondary">View Advertising Options</a>
+            </div>
+        </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <div id="modal-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/assets/js/supabase-config.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!CONFIG.features.store) {
+                var main = document.getElementById('main-content');
+                if (main) {
+                    main.innerHTML = '<div class="content-wrapper" style="text-align:center;padding:var(--space-16) var(--space-4)">' +
+                        '<div style="font-size:var(--text-5xl);margin-bottom:var(--space-4)">🛒</div>' +
+                        '<h1 style="margin-bottom:var(--space-3)">Store Coming Soon</h1>' +
+                        '<p style="color:var(--text-secondary);max-width:500px;margin:0 auto var(--space-6)">We\'re working hard to bring you premium assets, verified checks, and exclusive perks. Stay tuned!</p>' +
+                        '<a href="/" class="btn btn-primary">Back to Home</a>' +
+                        '</div>';
+                }
+                return;
+            }
+            document.querySelectorAll('[data-toast]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    UI.toast(el.dataset.toast, 'info');
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

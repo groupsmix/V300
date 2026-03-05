@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Groups — GroupsMix</title>
+    <meta name="description"
+        content="Browse social media groups by category, platform, and country. Filter and discover the best communities.">
+    <link rel="canonical" href="https://groupsmix.com/browse">
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="GroupsMix">
+    <meta property="og:title" content="Browse Groups — GroupsMix">
+    <meta property="og:description"
+        content="Browse social media groups by category, platform, and country. Filter and discover the best communities.">
+    <meta property="og:url" content="https://groupsmix.com/browse">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    </noscript>
+    <link rel="stylesheet" href="/assets/css/shared.css">
+    <style>
+        .browse-hero {
+            padding: var(--space-8) 0 var(--space-4);
+            text-align: center;
+        }
+
+        .browse-hero__subtitle {
+            color: var(--text-secondary);
+            margin-top: var(--space-2);
+        }
+
+        /* ─── Filter Bar ─── */
+        .browse-filters {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-3);
+            margin-bottom: var(--space-6);
+            padding: var(--space-4);
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+        }
+
+        .browse-filters .form-group {
+            margin-bottom: 0;
+        }
+
+        /* ─── Quick Picks ─── */
+        .quick-picks {
+            margin-bottom: var(--space-6);
+        }
+
+        .quick-picks__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-3);
+        }
+
+        .quick-picks__title {
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .quick-picks__toggle {
+            font-size: var(--text-xs);
+            color: var(--accent-primary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .quick-picks__grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+        }
+
+        .quick-pick {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1);
+            padding: var(--space-1) var(--space-3);
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-full);
+            font-size: var(--text-sm);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        .quick-pick:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-1px);
+        }
+
+        .quick-pick--active {
+            border-color: var(--accent-primary);
+            background: var(--accent-primary-light);
+            color: var(--accent-primary);
+            font-weight: var(--font-semibold);
+        }
+
+        /* ─── Active Filters Summary ─── */
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+            align-items: center;
+        }
+
+        .active-filter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1);
+            padding: var(--space-1) var(--space-3);
+            background: var(--accent-primary-light);
+            border: 1px solid var(--accent-primary);
+            border-radius: var(--radius-full);
+            font-size: var(--text-xs);
+            color: var(--accent-primary);
+            font-weight: var(--font-semibold);
+        }
+
+        .active-filter-tag__remove {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: var(--text-xs);
+            color: var(--accent-primary);
+            padding: 0;
+            margin-left: var(--space-1);
+            line-height: 1;
+        }
+
+        .clear-all-btn {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+        }
+
+        /* ─── Results ─── */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+            flex-wrap: wrap;
+            gap: var(--space-2);
+        }
+
+        .results-count {
+            color: var(--text-secondary);
+            font-size: var(--text-sm);
+        }
+
+        @media (max-width: 767px) {
+            .browse-filters {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .browse-filters {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header id="site-header"></header>
+    <div id="announcement-bar"></div>
+    <main id="main-content">
+        <div class="container">
+            <section class="browse-hero">
+                <h1>Browse Groups</h1>
+                <p class="browse-hero__subtitle">Filter by category, platform, and country to find exactly what you need
+                </p>
+            </section>
+
+            <!-- Combined Filter Dropdowns -->
+            <div class="browse-filters" id="browse-filters"></div>
+
+            <!-- Active Filter Tags -->
+            <div class="active-filters" id="active-filters"></div>
+
+            <!-- Quick Pick Chips: Categories -->
+            <div class="quick-picks" id="quick-categories">
+                <div class="quick-picks__header">
+                    <span class="quick-picks__title">Categories</span>
+                    <button class="quick-picks__toggle" id="toggle-categories">Show all</button>
+                </div>
+                <div class="quick-picks__grid" id="category-chips"></div>
+            </div>
+
+            <!-- Quick Pick Chips: Platforms -->
+            <div class="quick-picks" id="quick-platforms">
+                <div class="quick-picks__header">
+                    <span class="quick-picks__title">Platforms</span>
+                </div>
+                <div class="quick-picks__grid" id="platform-chips"></div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-header" id="results-header" style="display:none">
+                <h2 id="results-title" style="font-size:var(--text-xl)"></h2>
+                <span class="results-count" id="results-count"></span>
+            </div>
+            <div id="results-container"></div>
+            <div id="pagination-container"></div>
+        </div>
+    </main>
+    <footer id="site-footer"></footer>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <div id="modal-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/assets/js/supabase-config.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initPage);
+
+        let currentPage = 1;
+        let currentFilters = { platform: '', category: '', country: '', sort: 'ranking' };
+        let categoriesExpanded = false;
+
+        function initPage() {
+            // Read URL params (support legacy params: cat, p, c)
+            const params = new URLSearchParams(window.location.search);
+            currentFilters.category = params.get('cat') || params.get('category') || '';
+            currentFilters.platform = params.get('p') || params.get('platform') || '';
+            currentFilters.country = params.get('c') || params.get('country') || '';
+            currentFilters.sort = params.get('sort') || 'ranking';
+
+            renderFilterBar();
+            renderQuickPicks();
+            renderActiveFilters();
+            loadGroups();
+        }
+
+        function renderFilterBar() {
+            const platforms = '<option value="">All Platforms</option>' + CONFIG.platforms.map(function (p) {
+                return '<option value="' + p.id + '"' + (currentFilters.platform === p.id ? ' selected' : '') + '>' + p.emoji + ' ' + p.name + '</option>';
+            }).join('');
+            const categories = '<option value="">All Categories</option>' + CONFIG.categories.map(function (c) {
+                return '<option value="' + c.id + '"' + (currentFilters.category === c.id ? ' selected' : '') + '>' + c.emoji + ' ' + c.name + '</option>';
+            }).join('');
+            const countries = '<option value="">All Countries</option>' + CONFIG.countries.map(function (c) {
+                return '<option value="' + c.code + '"' + (currentFilters.country === c.code ? ' selected' : '') + '>' + c.flag + ' ' + c.name + '</option>';
+            }).join('');
+            var sorts = '<option value="ranking"' + (currentFilters.sort === 'ranking' ? ' selected' : '') + '>Ranking</option>' +
+                '<option value="newest"' + (currentFilters.sort === 'newest' ? ' selected' : '') + '>Newest</option>' +
+                '<option value="views"' + (currentFilters.sort === 'views' ? ' selected' : '') + '>Most Viewed</option>' +
+                '<option value="rating"' + (currentFilters.sort === 'rating' ? ' selected' : '') + '>Top Rated</option>';
+
+            document.getElementById('browse-filters').innerHTML =
+                '<div class="form-group"><label class="form-label">Category</label><select class="form-select" id="filter-category">' + categories + '</select></div>' +
+                '<div class="form-group"><label class="form-label">Platform</label><select class="form-select" id="filter-platform">' + platforms + '</select></div>' +
+                '<div class="form-group"><label class="form-label">Country</label><select class="form-select" id="filter-country">' + countries + '</select></div>' +
+                '<div class="form-group"><label class="form-label">Sort by</label><select class="form-select" id="filter-sort">' + sorts + '</select></div>';
+
+            // Attach change listeners
+            ['filter-category', 'filter-platform', 'filter-country', 'filter-sort'].forEach(function (id) {
+                document.getElementById(id).addEventListener('change', function () {
+                    currentFilters.category = document.getElementById('filter-category').value;
+                    currentFilters.platform = document.getElementById('filter-platform').value;
+                    currentFilters.country = document.getElementById('filter-country').value;
+                    currentFilters.sort = document.getElementById('filter-sort').value;
+                    currentPage = 1;
+                    updateUrl();
+                    renderQuickPicks();
+                    renderActiveFilters();
+                    loadGroups();
+                });
+            });
+        }
+
+        function renderQuickPicks() {
+            // Categories: show first 10 or all
+            var cats = categoriesExpanded ? CONFIG.categories : CONFIG.categories.slice(0, 10);
+            document.getElementById('category-chips').innerHTML = cats.map(function (c) {
+                return '<button class="quick-pick' + (currentFilters.category === c.id ? ' quick-pick--active' : '') + '" data-type="category" data-value="' + c.id + '">' + c.emoji + ' ' + c.name + '</button>';
+            }).join('');
+
+            document.getElementById('toggle-categories').textContent = categoriesExpanded ? 'Show less' : 'Show all (' + CONFIG.categories.length + ')';
+            document.getElementById('toggle-categories').addEventListener('click', function () {
+                categoriesExpanded = !categoriesExpanded;
+                renderQuickPicks();
+            });
+
+            // Platforms: always show all (only 8)
+            document.getElementById('platform-chips').innerHTML = CONFIG.platforms.map(function (p) {
+                return '<button class="quick-pick' + (currentFilters.platform === p.id ? ' quick-pick--active' : '') + '" data-type="platform" data-value="' + p.id + '">' + p.emoji + ' ' + p.name + '</button>';
+            }).join('');
+
+            // Attach click listeners to all chips
+            document.querySelectorAll('.quick-pick').forEach(function (chip) {
+                chip.addEventListener('click', function () {
+                    var type = chip.dataset.type;
+                    var value = chip.dataset.value;
+                    // Toggle: if already active, clear it
+                    if (currentFilters[type] === value) {
+                        currentFilters[type] = '';
+                    } else {
+                        currentFilters[type] = value;
+                    }
+                    currentPage = 1;
+                    updateUrl();
+                    syncDropdowns();
+                    renderQuickPicks();
+                    renderActiveFilters();
+                    loadGroups();
+                });
+            });
+        }
+
+        function renderActiveFilters() {
+            var container = document.getElementById('active-filters');
+            var tags = [];
+            if (currentFilters.category) {
+                var cat = CONFIG.categories.find(function (c) { return c.id === currentFilters.category; });
+                if (cat) tags.push({ type: 'category', label: cat.emoji + ' ' + cat.name });
+            }
+            if (currentFilters.platform) {
+                var plat = CONFIG.platforms.find(function (p) { return p.id === currentFilters.platform; });
+                if (plat) tags.push({ type: 'platform', label: plat.emoji + ' ' + plat.name });
+            }
+            if (currentFilters.country) {
+                var ctry = CONFIG.countries.find(function (c) { return c.code === currentFilters.country; });
+                if (ctry) tags.push({ type: 'country', label: ctry.flag + ' ' + ctry.name });
+            }
+            if (!tags.length) { container.innerHTML = ''; return; }
+            container.innerHTML = tags.map(function (t) {
+                return '<span class="active-filter-tag">' + t.label + '<button class="active-filter-tag__remove" data-clear="' + t.type + '" aria-label="Remove ' + t.type + ' filter">&times;</button></span>';
+            }).join('') + '<button class="clear-all-btn" id="clear-all-filters">Clear all</button>';
+
+            container.querySelectorAll('.active-filter-tag__remove').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    currentFilters[btn.dataset.clear] = '';
+                    currentPage = 1;
+                    updateUrl();
+                    syncDropdowns();
+                    renderQuickPicks();
+                    renderActiveFilters();
+                    loadGroups();
+                });
+            });
+            document.getElementById('clear-all-filters').addEventListener('click', function () {
+                currentFilters.category = '';
+                currentFilters.platform = '';
+                currentFilters.country = '';
+                currentPage = 1;
+                updateUrl();
+                syncDropdowns();
+                renderQuickPicks();
+                renderActiveFilters();
+                loadGroups();
+            });
+        }
+
+        function syncDropdowns() {
+            var catEl = document.getElementById('filter-category');
+            var platEl = document.getElementById('filter-platform');
+            var ctryEl = document.getElementById('filter-country');
+            if (catEl) catEl.value = currentFilters.category;
+            if (platEl) platEl.value = currentFilters.platform;
+            if (ctryEl) ctryEl.value = currentFilters.country;
+        }
+
+        function updateUrl() {
+            var params = new URLSearchParams();
+            if (currentFilters.category) params.set('cat', currentFilters.category);
+            if (currentFilters.platform) params.set('platform', currentFilters.platform);
+            if (currentFilters.country) params.set('country', currentFilters.country);
+            if (currentFilters.sort && currentFilters.sort !== 'ranking') params.set('sort', currentFilters.sort);
+            var qs = params.toString();
+            history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+        }
+
+        async function loadGroups() {
+            document.getElementById('results-header').style.display = '';
+            // Build descriptive title
+            var parts = [];
+            if (currentFilters.category) {
+                var cat = CONFIG.categories.find(function (c) { return c.id === currentFilters.category; });
+                if (cat) parts.push(cat.emoji + ' ' + cat.name);
+            }
+            if (currentFilters.platform) {
+                var plat = CONFIG.platforms.find(function (p) { return p.id === currentFilters.platform; });
+                if (plat) parts.push(plat.emoji + ' ' + plat.name);
+            }
+            if (currentFilters.country) {
+                var ctry = CONFIG.countries.find(function (c) { return c.code === currentFilters.country; });
+                if (ctry) parts.push(ctry.flag + ' ' + ctry.name);
+            }
+            document.getElementById('results-title').textContent = parts.length ? parts.join(' + ') + ' Groups' : 'All Groups';
+
+            UI.groupGridSkeleton(12, 'results-container');
+            document.getElementById('pagination-container').innerHTML = '';
+            var offset = (currentPage - 1) * CONFIG.perPage;
+
+            try {
+                var result = await DB.groups.getApproved({
+                    category: currentFilters.category,
+                    platform: currentFilters.platform,
+                    country: currentFilters.country,
+                    sort: currentFilters.sort,
+                    limit: CONFIG.perPage,
+                    offset: offset
+                });
+                document.getElementById('results-count').textContent = (result.count || 0) + ' group' + (result.count !== 1 ? 's' : '') + ' found';
+                if (!result.data || !result.data.length) {
+                    UI.emptyState('results-container', '📭', 'No Groups Found',
+                        'Try adjusting your filters or be the first to submit a group!',
+                        'Submit Group', '/submit');
+                    return;
+                }
+                UI.groupGrid(result.data, 'results-container');
+                var totalPages = Math.ceil((result.count || 0) / CONFIG.perPage);
+                if (totalPages > 1) {
+                    document.getElementById('pagination-container').innerHTML = UI.pagination(currentPage, totalPages);
+                    UI.initPagination('pagination-container', function (p) {
+                        currentPage = p;
+                        loadGroups();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                }
+            } catch (err) {
+                console.error('Browse loadGroups:', err);
+                UI.errorState('results-container', loadGroups);
+            }
+        }
+    </script>
+</body>
+
+</html>

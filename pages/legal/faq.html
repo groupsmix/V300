@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ — GroupsMix</title>
+    <meta name="description" content="Frequently asked questions about GroupsMix.">
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    </noscript>
+    <link rel="stylesheet" href="/assets/css/shared.css">
+    <style>
+        .faq-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-3);
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: var(--space-4);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: var(--font-semibold);
+        }
+
+        .faq-question:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .faq-answer {
+            padding: 0 var(--space-4) var(--space-4);
+            color: var(--text-secondary);
+            line-height: var(--leading-relaxed);
+            display: none;
+        }
+
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+
+        .faq-item.open .faq-arrow {
+            transform: rotate(180deg);
+        }
+
+        .faq-arrow {
+            transition: transform 0.2s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header id="site-header"></header>
+    <div id="announcement-bar"></div>
+    <main id="main-content">
+        <div class="container" style="max-width:var(--container-md);padding:var(--space-8) var(--space-4)">
+            <h1 style="text-align:center;margin-bottom:var(--space-8)">❓ Frequently Asked Questions</h1>
+            <div id="faq-list"></div>
+        </div>
+    </main>
+    <footer id="site-footer"></footer>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <div id="modal-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/assets/js/supabase-config.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/components.js"></script>
+    <script>
+        const faqs = [
+            { q: 'What is GroupsMix?', a: 'GroupsMix is a platform for discovering, sharing, and promoting trusted social media groups across platforms like WhatsApp, Telegram, Discord, and more.' },
+            { q: 'How do I submit a group?', a: 'Click "Submit" in the navigation bar, fill in your group details, and submit for review. Your group will be reviewed and approved within 24-72 hours.' },
+            { q: 'Is it free to list my group?', a: 'Yes! Basic listing is completely free. We also offer premium VIP plans for enhanced visibility and features.' },
+            { q: 'How does the trust score work?', a: 'Trust scores are calculated based on multiple factors: verification status, review ratings, report history, account age, and community engagement.' },
+            { q: 'What are VIP plans?', a: 'VIP plans give your group enhanced visibility with badges, priority placement, and ranking multipliers. Plans range from Verified ($5/mo) to Diamond ($50/mo).' },
+            { q: 'What is GXP?', a: 'GXP (GroupsMix Experience Points) is our reputation system. You earn GXP by submitting groups (+50), writing reviews (+10), and other activities. Higher GXP unlocks levels and perks.' },
+            { q: 'How do I report a suspicious group?', a: 'Visit the group\'s profile page and click the "Report" button. Select a reason and provide details. Our team reviews all reports promptly.' },
+            { q: 'What payment methods do you accept?', a: 'We accept cryptocurrency (Bitcoin, USDT, Solana) and card payments via LemonSqueezy for VIP plans and services.' },
+            { q: 'Can I edit my group after submission?', a: 'Currently, you\'ll need to contact us to make changes to an approved group. We\'re working on a self-service edit feature.' },
+            { q: 'How do I delete my account?', a: 'Contact us through the contact page and we\'ll process your account deletion request within 48 hours.' }
+        ];
+        document.getElementById('faq-list').innerHTML = faqs.map((f, i) =>
+            '<div class="faq-item" data-index="' + i + '"><div class="faq-question">' + f.q + '<span class="faq-arrow">▼</span></div><div class="faq-answer">' + f.a + '</div></div>'
+        ).join('');
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.querySelector('.faq-question').addEventListener('click', () => {
+                item.classList.toggle('open');
+            });
+        });
+    </script>
+</body>
+
+</html>
