@@ -68,9 +68,40 @@
             text-transform: uppercase;
         }
 
+        .admin-mobile-tabs {
+            display: none;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: var(--space-2) var(--space-4);
+            border-bottom: 1px solid var(--border-primary);
+            background: var(--bg-card);
+            gap: var(--space-1);
+        }
+
+        .admin-mobile-tabs__btn {
+            display: inline-block;
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-md);
+            font-size: var(--text-xs);
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .admin-mobile-tabs__btn--active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-weight: var(--font-semibold);
+        }
+
         @media (max-width: 767px) {
             .admin-sidebar {
                 display: none;
+            }
+
+            .admin-mobile-tabs {
+                display: flex;
             }
 
             .admin-content {
@@ -92,11 +123,21 @@
         <a class="admin-sidebar__link" href="#articles" data-tab="articles">📰 Articles</a>
         <a class="admin-sidebar__link" href="#config" data-tab="config">⚙️ Config</a>
     </nav>
+    <div class="admin-mobile-tabs" id="admin-mobile-tabs">
+        <button class="admin-mobile-tabs__btn admin-mobile-tabs__btn--active" data-mob-tab="overview">📊</button>
+        <button class="admin-mobile-tabs__btn" data-mob-tab="pending">⏳</button>
+        <button class="admin-mobile-tabs__btn" data-mob-tab="reports">🚩</button>
+        <button class="admin-mobile-tabs__btn" data-mob-tab="payments">💰</button>
+        <button class="admin-mobile-tabs__btn" data-mob-tab="users">👥</button>
+        <button class="admin-mobile-tabs__btn" data-mob-tab="articles">📰</button>
+        <button class="admin-mobile-tabs__btn" data-mob-tab="config">⚙️</button>
+    </div>
     <main id="main-content">
         <div class="admin-content" id="admin-content">
             <div class="skeleton" style="height:400px"></div>
         </div>
     </main>
+    <footer id="site-footer"></footer>
     <div id="toast-container" class="toast-container" aria-live="polite"></div>
     <div id="modal-container"></div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -118,17 +159,39 @@
         async function initAdmin() {
             if (!Auth.isLoggedIn()) { UI.authModal('signin'); return; }
             const user = Auth.getUser();
-            if (!user?.is_admin) { document.getElementById('admin-content').innerHTML = '<div class="empty-state"><div class="empty-state__icon">🔒</div><div class="empty-state__title">Access Denied</div><div class="empty-state__text">Admin access required.</div><a href="/" class="btn btn-primary">Go Home</a></div>'; return; }
+            if (!Auth.isAdmin()) { document.getElementById('admin-content').innerHTML = '<div class="empty-state"><div class="empty-state__icon">🔒</div><div class="empty-state__title">Access Denied</div><div class="empty-state__text">Admin access required.</div><a href="/" class="btn btn-primary">Go Home</a></div>'; return; }
             document.querySelectorAll('.admin-sidebar__link').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     currentTab = link.dataset.tab;
                     document.querySelectorAll('.admin-sidebar__link').forEach(l => l.classList.remove('admin-sidebar__link--active'));
                     link.classList.add('admin-sidebar__link--active');
+                    syncMobileTabs();
+                    loadTab();
+                });
+            });
+            document.querySelectorAll('[data-mob-tab]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentTab = btn.dataset.mobTab;
+                    document.querySelectorAll('[data-mob-tab]').forEach(b => b.classList.remove('admin-mobile-tabs__btn--active'));
+                    btn.classList.add('admin-mobile-tabs__btn--active');
+                    syncSidebarTabs();
                     loadTab();
                 });
             });
             loadTab();
+        }
+
+        function syncMobileTabs() {
+            document.querySelectorAll('[data-mob-tab]').forEach(b => {
+                b.classList.toggle('admin-mobile-tabs__btn--active', b.dataset.mobTab === currentTab);
+            });
+        }
+
+        function syncSidebarTabs() {
+            document.querySelectorAll('.admin-sidebar__link').forEach(l => {
+                l.classList.toggle('admin-sidebar__link--active', l.dataset.tab === currentTab);
+            });
         }
 
         async function loadTab() {
@@ -156,9 +219,10 @@
         }
 
         async function loadPending(el) {
-            const pending = await DB.pending.getAll();
-            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">⏳ Pending Groups (' + (pending?.length || 0) + ')</h2>';
-            if (!pending?.length) { el.innerHTML += '<div class="empty-state"><div class="empty-state__icon">✅</div><div class="empty-state__title">All Clear</div></div>'; return; }
+            const result = await DB.pending.getAll({ status: 'pending' });
+            const pending = result?.data || [];
+            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">⏳ Pending Groups (' + pending.length + ')</h2>';
+            if (!pending.length) { el.innerHTML += '<div class="empty-state"><div class="empty-state__icon">✅</div><div class="empty-state__title">All Clear</div></div>'; return; }
             el.innerHTML += '<div class="card"><div class="card__body" style="padding:0;overflow-x:auto"><table class="admin-table"><thead><tr><th>Name</th><th>Platform</th><th>Category</th><th>Date</th><th>Actions</th></tr></thead><tbody>' +
                 pending.map(g => '<tr><td>' + Security.sanitize(g.name) + '</td><td>' + Security.sanitize(g.platform) + '</td><td>' + Security.sanitize(g.category) + '</td><td>' + UI.formatDate(g.submitted_at) + '</td>' +
                     '<td><button class="btn btn-sm" style="background:var(--success);color:#fff;margin-right:4px" data-action="approve" data-id="' + g.id + '">✅</button><button class="btn btn-sm btn-danger" data-action="reject" data-id="' + g.id + '">❌</button></td></tr>').join('') +
@@ -167,30 +231,32 @@
                 btn.addEventListener('click', async () => {
                     const action = btn.dataset.action;
                     const id = btn.dataset.id;
-                    if (action === 'approve') { await DB.admin.approveGroup(id); UI.toast('Group approved!', 'success'); }
-                    else { await DB.admin.rejectGroup(id); UI.toast('Group rejected', 'info'); }
+                    if (action === 'approve') { await DB.pending.approve(id); UI.toast('Group approved!', 'success'); }
+                    else { await DB.pending.reject(id); UI.toast('Group rejected', 'info'); }
                     loadPending(el);
                 });
             });
         }
 
         async function loadReports(el) {
-            const reports = await DB.reports.getAll();
-            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">🚩 Reports (' + (reports?.length || 0) + ')</h2>';
-            if (!reports?.length) { el.innerHTML += '<div class="empty-state"><div class="empty-state__icon">✅</div><div class="empty-state__title">No Reports</div></div>'; return; }
+            const result = await DB.reports.getAll({ status: 'pending' });
+            const reports = result?.data || [];
+            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">🚩 Reports (' + reports.length + ')</h2>';
+            if (!reports.length) { el.innerHTML += '<div class="empty-state"><div class="empty-state__icon">✅</div><div class="empty-state__title">No Reports</div></div>'; return; }
             el.innerHTML += '<div class="card"><div class="card__body" style="padding:0;overflow-x:auto"><table class="admin-table"><thead><tr><th>Group</th><th>Reason</th><th>Date</th><th>Actions</th></tr></thead><tbody>' +
                 reports.map(r => '<tr><td>' + Security.sanitize(r.group_name || r.group_id) + '</td><td>' + Security.sanitize(r.reason) + '</td><td>' + UI.formatDate(r.created_at) + '</td>' +
                     '<td><button class="btn btn-sm btn-danger" data-dismiss="' + r.id + '">Dismiss</button></td></tr>').join('') +
                 '</tbody></table></div></div>';
             el.querySelectorAll('[data-dismiss]').forEach(btn => {
-                btn.addEventListener('click', async () => { await DB.admin.dismissReport(btn.dataset.dismiss); UI.toast('Report dismissed', 'info'); loadReports(el); });
+                btn.addEventListener('click', async () => { await DB.reports.resolve(btn.dataset.dismiss); UI.toast('Report dismissed', 'info'); loadReports(el); });
             });
         }
 
         async function loadPayments(el) {
-            const payments = await DB.payments.getAll();
-            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">💰 Payments (' + (payments?.length || 0) + ')</h2>';
-            if (!payments?.length) { el.innerHTML += '<div class="empty-state"><div class="empty-state__icon">💰</div><div class="empty-state__title">No Payments</div></div>'; return; }
+            const result = await DB.payments.getAll();
+            const payments = result?.data || [];
+            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">💰 Payments (' + payments.length + ')</h2>';
+            if (!payments.length) { el.innerHTML += '<div class="empty-state"><div class="empty-state__icon">💰</div><div class="empty-state__title">No Payments</div></div>'; return; }
             el.innerHTML += '<div class="card"><div class="card__body" style="padding:0;overflow-x:auto"><table class="admin-table"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
                 payments.map(p => '<tr><td>' + Security.sanitize(p.user_id?.slice(0, 8)) + '</td><td>' + Security.sanitize(p.service) + '</td><td>' + UI.formatCurrency(p.amount) + '</td>' +
                     '<td>' + (p.status === 'verified' ? '✅' : p.status === 'rejected' ? '❌' : '⏳') + ' ' + Security.sanitize(p.status) + '</td>' +
@@ -198,19 +264,20 @@
                     '</tr>').join('') +
                 '</tbody></table></div></div>';
             el.querySelectorAll('[data-verify]').forEach(btn => {
-                btn.addEventListener('click', async () => { await DB.admin.verifyPayment(btn.dataset.verify); UI.toast('Payment verified', 'success'); loadPayments(el); });
+                btn.addEventListener('click', async () => { await DB.payments.verify(btn.dataset.verify); UI.toast('Payment verified', 'success'); loadPayments(el); });
             });
             el.querySelectorAll('[data-deny]').forEach(btn => {
-                btn.addEventListener('click', async () => { await DB.admin.denyPayment(btn.dataset.deny); UI.toast('Payment denied', 'info'); loadPayments(el); });
+                btn.addEventListener('click', async () => { await DB.payments.reject(btn.dataset.deny); UI.toast('Payment denied', 'info'); loadPayments(el); });
             });
         }
 
         async function loadUsers(el) {
-            const { data } = await supabase.from('users').select('*').order('gxp', { ascending: false }).limit(50);
+            const result = await DB.admin.getUsers({ limit: 50 });
+            const data = result?.data || [];
             el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">👥 Users</h2>';
-            if (!data?.length) { el.innerHTML += '<div class="empty-state"><div class="empty-state__icon">👥</div><div class="empty-state__title">No Users</div></div>'; return; }
-            el.innerHTML += '<div class="card"><div class="card__body" style="padding:0;overflow-x:auto"><table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>GXP</th><th>Admin</th></tr></thead><tbody>' +
-                data.map(u => '<tr><td>' + Security.sanitize(u.display_name || '') + '</td><td>' + Security.sanitize(u.email || '') + '</td><td>' + (u.gxp || 0) + '</td><td>' + (u.is_admin ? '✅' : '—') + '</td></tr>').join('') +
+            if (!data.length) { el.innerHTML += '<div class="empty-state"><div class="empty-state__icon">👥</div><div class="empty-state__title">No Users</div></div>'; return; }
+            el.innerHTML += '<div class="card"><div class="card__body" style="padding:0;overflow-x:auto"><table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>GXP</th><th>Role</th></tr></thead><tbody>' +
+                data.map(u => '<tr><td>' + Security.sanitize(u.display_name || '') + '</td><td>' + Security.sanitize(u.email || '') + '</td><td>' + (u.gxp || 0) + '</td><td>' + (u.role === 'admin' ? '👑 Admin' : u.role === 'moderator' ? '🛡️ Mod' : '—') + '</td></tr>').join('') +
                 '</tbody></table></div></div>';
         }
 
@@ -249,7 +316,7 @@
         }
 
         async function loadConfig(el) {
-            const config = await DB.config.getAll();
+            const config = await DB.config.getSettings();
             el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">⚙️ Site Config</h2>' +
                 '<div class="card"><div class="card__body" style="padding:var(--space-6)">' +
                 '<div class="form-group"><label class="form-label">Announcement Text</label><input class="form-input" id="cfg-announcement" value="' + Security.sanitize(config?.announcement_text || '') + '"></div>' +
@@ -258,7 +325,7 @@
                 '<button class="btn btn-primary btn-sm" id="save-config">Save Config</button>' +
                 '</div></div>';
             document.getElementById('save-config')?.addEventListener('click', async () => {
-                await DB.config.update({
+                await DB.config.updateSettings({
                     announcement_text: document.getElementById('cfg-announcement').value,
                     announcement_link: document.getElementById('cfg-announcement-link').value,
                     maintenance_mode: document.getElementById('cfg-maintenance').checked
