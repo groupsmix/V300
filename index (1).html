@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Profile — GroupsMix</title>
+    <meta name="description" content="View group details, reviews, and trust score on GroupsMix.">
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="GroupsMix">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    </noscript>
+    <link rel="stylesheet" href="/assets/css/shared.css">
+    <style>
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: var(--space-6);
+            padding: var(--space-8) 0;
+        }
+
+        .profile-main {
+            min-width: 0;
+        }
+
+        .profile-sidebar {
+            position: sticky;
+            top: 80px;
+            align-self: start;
+        }
+
+        .profile-header {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .profile-header__title {
+            font-size: var(--text-2xl);
+            margin-bottom: var(--space-3);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            flex-wrap: wrap;
+        }
+
+        .profile-header__meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            color: var(--text-secondary);
+            font-size: var(--text-sm);
+            margin-bottom: var(--space-4);
+        }
+
+        .profile-header__desc {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-4);
+            line-height: var(--leading-relaxed);
+        }
+
+        .profile-header__tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: var(--space-4);
+        }
+
+        .profile-header__actions {
+            display: flex;
+            gap: var(--space-3);
+            flex-wrap: wrap;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-3);
+            margin-bottom: var(--space-6);
+        }
+
+        .profile-stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            text-align: center;
+        }
+
+        .profile-stat__value {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-bold);
+            color: var(--accent-primary);
+        }
+
+        .profile-stat__label {
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+        }
+
+        .reviews-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+        }
+
+        .review-form {
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .sidebar-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .sidebar-card__title {
+            font-weight: var(--font-semibold);
+            font-size: var(--text-sm);
+            margin-bottom: var(--space-3);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        @media (max-width: 1023px) {
+            .profile-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-sidebar {
+                position: static;
+            }
+
+            .profile-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header id="site-header"></header>
+    <div id="announcement-bar"></div>
+    <main id="main-content">
+        <div class="container">
+            <div class="profile-layout">
+                <div class="profile-main" id="profile-main">
+                    <div class="profile-header skeleton" style="height:300px"></div>
+                    <div class="profile-stats">
+                        <div class="skeleton" style="height:80px"></div>
+                        <div class="skeleton" style="height:80px"></div>
+                        <div class="skeleton" style="height:80px"></div>
+                        <div class="skeleton" style="height:80px"></div>
+                    </div>
+                </div>
+                <aside class="profile-sidebar" id="profile-sidebar">
+                    <div class="skeleton" style="height:200px;border-radius:var(--radius-xl)"></div>
+                </aside>
+            </div>
+        </div>
+    </main>
+    <footer id="site-footer"></footer>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <div id="modal-container"></div>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/assets/js/supabase-config.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => { initPage(); });
+        let group = null;
+        let reviewRating = 0;
+
+        async function initPage() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (!id) { window.location.href = '/search'; return; }
+            const timeout = setTimeout(() => UI.timeoutState('profile-main'), CONFIG.timeoutDuration);
+            try {
+                group = await DB.groups.getOne(id);
+                clearTimeout(timeout);
+                if (!group) { renderNotFound(); return; }
+                document.title = Security.sanitize(group.name) + ' — GroupsMix';
+                document.querySelector('meta[name="description"]')?.setAttribute('content', Security.sanitize(group.description || '').slice(0, 160));
+                DB.groups.incrementViews(id);
+                RecentlyViewed.add(group);
+                renderProfile();
+                renderSidebar();
+                loadReviews();
+            } catch { clearTimeout(timeout); UI.errorState('profile-main', initPage); }
+        }
+
+        function renderNotFound() {
+            UI.emptyState('profile-main', '🔍', 'Group Not Found', 'This group doesn\'t exist or has been removed.', 'Browse Groups', '/search');
+            document.getElementById('profile-sidebar').innerHTML = '';
+        }
+
+        function renderProfile() {
+            const tier = Algorithms.getEffectiveTier(group);
+            const trust = Algorithms.calculateTrustScore(group);
+            const platform = CONFIG.platforms.find(p => p.id === group.platform);
+            const category = CONFIG.categories.find(c => c.id === group.category);
+            const country = CONFIG.countries.find(c => c.code === group.country);
+            const isSaved = Saved.isSaved(group.id);
+            const tags = Array.isArray(group.tags) ? group.tags : [];
+            const main = document.getElementById('profile-main');
+            main.innerHTML =
+                '<div class="profile-header">' +
+                '<h1 class="profile-header__title">' + Security.sanitize(group.name) + (tier !== 'none' ? ' ' + UI.trustBadge(tier) : '') + '</h1>' +
+                '<div class="profile-header__meta">' +
+                '<span>' + (platform?.emoji || '📱') + ' ' + Security.sanitize(platform?.name || group.platform) + '</span>' +
+                '<span>' + (category?.emoji || '📌') + ' ' + Security.sanitize(category?.name || group.category) + '</span>' +
+                '<span>' + (country?.flag || '🌍') + ' ' + Security.sanitize(country?.name || group.country) + '</span>' +
+                '<span>🗣 ' + Security.sanitize(group.language || 'English') + '</span>' +
+                '</div>' +
+                '<div class="profile-header__desc">' + Security.sanitize(group.description || '') + '</div>' +
+                (tags.length ? '<div class="profile-header__tags">' + tags.map(t => '<span class="tag">' + Security.sanitize(t) + '</span>').join('') + '</div>' : '') +
+                '<div class="profile-header__actions">' +
+                '<a href="/go?id=' + group.id + '" target="_blank" class="btn btn-primary">🔗 Join Group</a>' +
+                '<button class="btn btn-secondary" id="save-btn">' + (isSaved ? '❤️ Saved' : '🤍 Save') + '</button>' +
+                '<button class="btn btn-secondary" id="share-btn">📤 Share</button>' +
+                '<button class="btn btn-ghost" id="report-btn">🚩 Report</button>' +
+                '</div>' +
+                '</div>' +
+                '<div class="profile-stats">' +
+                '<div class="profile-stat"><div class="profile-stat__value">' + UI.formatNumber(group.views || 0) + '</div><div class="profile-stat__label">Views</div></div>' +
+                '<div class="profile-stat"><div class="profile-stat__value">' + UI.formatNumber(group.clicks || 0) + '</div><div class="profile-stat__label">Clicks</div></div>' +
+                '<div class="profile-stat"><div class="profile-stat__value">' + (parseFloat(group.avg_rating) || 0).toFixed(1) + '</div><div class="profile-stat__label">Rating</div></div>' +
+                '<div class="profile-stat"><div class="profile-stat__value">' + trust + '</div><div class="profile-stat__label">Trust</div></div>' +
+                '</div>' +
+                '<div class="reviews-section">' +
+                '<div class="review-form" id="review-form-section">' +
+                '<h3 style="margin-bottom:var(--space-4)">Write a Review</h3>' +
+                '<div style="margin-bottom:var(--space-3)">' + UI.starRating(0, true) + '</div>' +
+                '<textarea class="form-textarea" id="review-text" placeholder="Share your experience..." maxlength="500" style="min-height:80px"></textarea>' +
+                '<button class="btn btn-primary btn-sm" id="submit-review-btn" style="margin-top:var(--space-3)">Submit Review</button>' +
+                '</div>' +
+                '<div id="reviews-list"><div style="padding:var(--space-4);text-align:center;color:var(--text-tertiary)">Loading reviews...</div></div>' +
+                '<div id="reviews-pagination" style="padding:var(--space-4)"></div>' +
+                '</div>';
+            document.getElementById('save-btn')?.addEventListener('click', toggleSave);
+            document.getElementById('share-btn')?.addEventListener('click', () => UI.shareGroup(group));
+            document.getElementById('report-btn')?.addEventListener('click', openReportModal);
+            document.getElementById('submit-review-btn')?.addEventListener('click', submitReview);
+            const ratingContainer = main.querySelector('.star-rating');
+            if (ratingContainer) UI.initStarRating(ratingContainer, (v) => { reviewRating = v; });
+        }
+
+        function renderSidebar() {
+            const sidebar = document.getElementById('profile-sidebar');
+            const trust = Algorithms.calculateTrustScore(group);
+            sidebar.innerHTML =
+                '<div class="sidebar-card"><div class="sidebar-card__title">🛡️ Trust Score</div>' + UI.trustScore(trust) + '</div>' +
+                '<div class="sidebar-card"><div class="sidebar-card__title">⭐ Rating</div>' + UI.starRating(group.avg_rating) + '<div style="font-size:var(--text-sm);color:var(--text-secondary);margin-top:var(--space-1)">' + (parseFloat(group.avg_rating) || 0).toFixed(1) + '/5 (' + (group.review_count || 0) + ' reviews)</div></div>' +
+                '<div class="sidebar-card"><div class="sidebar-card__title">📊 Stats</div>' +
+                '<div style="font-size:var(--text-sm);color:var(--text-secondary)">' +
+                '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Views</span><span>' + UI.formatNumber(group.views || 0) + '</span></div>' +
+                '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Clicks</span><span>' + UI.formatNumber(group.clicks || 0) + '</span></div>' +
+                '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Reviews</span><span>' + (group.review_count || 0) + '</span></div>' +
+                '<div style="display:flex;justify-content:space-between"><span>Added</span><span>' + UI.formatDate(group.approved_at || group.submitted_at) + '</span></div>' +
+                '</div></div>' +
+                '<div class="sidebar-card"><div class="sidebar-card__title">📱 Similar Groups</div><div id="similar-groups"><div class="skeleton" style="height:100px"></div></div></div>';
+            loadSimilarGroups();
+        }
+
+        async function loadSimilarGroups() {
+            const similar = await DB.groups.getSimilar(group);
+            const el = document.getElementById('similar-groups');
+            if (!el) return;
+            if (!similar.length) { el.innerHTML = '<div style="color:var(--text-tertiary);font-size:var(--text-sm)">No similar groups found</div>'; return; }
+            el.innerHTML = similar.slice(0, 4).map(g => '<a href="/group?id=' + g.id + '" style="display:block;padding:var(--space-2) 0;border-bottom:1px solid var(--border-primary);text-decoration:none;color:var(--text-primary);font-size:var(--text-sm)">' + Security.sanitize(g.name) + '</a>').join('');
+        }
+
+        let reviewPage = 1;
+        async function loadReviews() {
+            const list = document.getElementById('reviews-list');
+            try {
+                const { data, count } = await DB.reviews.getByGroup(group.id, { limit: 10, offset: (reviewPage - 1) * 10 });
+                if (!data?.length) { list.innerHTML = '<div style="padding:var(--space-6);text-align:center;color:var(--text-tertiary)">No reviews yet. Be the first!</div>'; return; }
+                list.innerHTML = data.map(r => UI.reviewCard(r)).join('');
+                const totalPages = Math.ceil((count || 0) / 10);
+                if (totalPages > 1) {
+                    const pag = document.getElementById('reviews-pagination');
+                    if (pag) { pag.innerHTML = UI.pagination(reviewPage, totalPages); UI.initPagination('reviews-pagination', (p) => { reviewPage = p; loadReviews(); }); }
+                }
+            } catch { list.innerHTML = '<div style="padding:var(--space-4);text-align:center;color:var(--text-tertiary)">Unable to load reviews</div>'; }
+        }
+
+        async function submitReview() {
+            if (!Auth.requireAuth()) return;
+            if (!reviewRating) { UI.toast('Please select a rating', 'error'); return; }
+            const text = document.getElementById('review-text')?.value?.trim() || '';
+            const btn = document.getElementById('submit-review-btn');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span> Submitting...'; }
+            const result = await DB.reviews.submit({ groupId: group.id, rating: reviewRating, text });
+            if (result) { UI.toast('Review submitted!', 'success'); loadReviews(); document.getElementById('review-text').value = ''; reviewRating = 0; }
+            if (btn) { btn.disabled = false; btn.textContent = 'Submit Review'; }
+        }
+
+        function toggleSave() {
+            const btn = document.getElementById('save-btn');
+            if (Saved.isSaved(group.id)) { Saved.remove(group.id); btn.innerHTML = '🤍 Save'; UI.toast('Removed from saved', 'info'); }
+            else { Saved.add(group); btn.innerHTML = '❤️ Saved'; UI.toast('Group saved!', 'success'); }
+        }
+
+        function openReportModal() {
+            if (!Auth.requireAuth()) return;
+            UI.modal({
+                title: '🚩 Report Group',
+                content: '<div class="form-group"><label class="form-label" for="report-reason">Reason</label>' +
+                    '<select class="form-select" id="report-reason"><option value="">Select reason</option><option value="scam">Scam / Fraud</option><option value="spam">Spam</option><option value="nsfw">NSFW / Adult</option><option value="hate">Hate Speech</option><option value="violence">Violence</option><option value="broken">Broken Link</option><option value="other">Other</option></select></div>' +
+                    '<div class="form-group"><label class="form-label" for="report-details">Details (optional)</label><textarea class="form-textarea" id="report-details" placeholder="Provide additional context..." maxlength="1000"></textarea></div>',
+                footer: '<button class="btn btn-secondary" id="report-cancel-btn">Cancel</button><button class="btn btn-danger" id="report-submit-btn">Submit Report</button>'
+            });
+            document.getElementById('report-cancel-btn')?.addEventListener('click', UI.closeModal);
+            document.getElementById('report-submit-btn')?.addEventListener('click', async () => {
+                const reason = document.getElementById('report-reason')?.value;
+                if (!reason) { UI.toast('Please select a reason', 'error'); return; }
+                const details = document.getElementById('report-details')?.value?.trim() || '';
+                const btn = document.getElementById('report-submit-btn');
+                if (btn) { btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span>'; }
+                const result = await DB.reports.submit({ groupId: group.id, reason, details });
+                if (result) { UI.toast('Report submitted. Thank you!', 'success'); UI.closeModal(); }
+                else if (btn) { btn.disabled = false; btn.textContent = 'Submit Report'; }
+            });
+        }
+    </script>
+</body>
+
+</html>
