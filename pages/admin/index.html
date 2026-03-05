@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — GroupsMix</title>
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    </noscript>
+    <link rel="stylesheet" href="/assets/css/shared.css">
+    <style>
+        .admin-sidebar {
+            width: 220px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-primary);
+            padding: var(--space-4);
+            position: fixed;
+            top: 64px;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .admin-sidebar__link {
+            display: block;
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-md);
+            font-size: var(--text-sm);
+            text-decoration: none;
+            color: var(--text-secondary);
+            margin-bottom: 2px;
+            transition: all 0.15s ease;
+        }
+
+        .admin-sidebar__link:hover,
+        .admin-sidebar__link--active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .admin-content {
+            margin-left: 220px;
+            padding: var(--space-6);
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: var(--space-3);
+            text-align: left;
+            border-bottom: 1px solid var(--border-primary);
+            font-size: var(--text-sm);
+        }
+
+        .admin-table th {
+            font-weight: var(--font-semibold);
+            color: var(--text-secondary);
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+        }
+
+        .admin-mobile-tabs {
+            display: none;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: var(--space-2) var(--space-4);
+            border-bottom: 1px solid var(--border-primary);
+            background: var(--bg-card);
+            gap: var(--space-1);
+        }
+
+        .admin-mobile-tabs__btn {
+            display: inline-block;
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-md);
+            font-size: var(--text-xs);
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .admin-mobile-tabs__btn--active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-weight: var(--font-semibold);
+        }
+
+        @media (max-width: 767px) {
+            .admin-sidebar {
+                display: none;
+            }
+
+            .admin-mobile-tabs {
+                display: flex;
+            }
+
+            .admin-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header id="site-header"></header>
+    <nav class="admin-sidebar">
+        <a class="admin-sidebar__link admin-sidebar__link--active" href="#overview" data-tab="overview">📊 Overview</a>
+        <a class="admin-sidebar__link" href="#pending" data-tab="pending">⏳ Pending Groups</a>
+        <a class="admin-sidebar__link" href="#reports" data-tab="reports">🚩 Reports</a>
+        <a class="admin-sidebar__link" href="#payments" data-tab="payments">💰 Payments</a>
+        <a class="admin-sidebar__link" href="#users" data-tab="users">👥 Users</a>
+        <a class="admin-sidebar__link" href="#articles" data-tab="articles">📰 Articles</a>
+        <a class="admin-sidebar__link" href="#config" data-tab="config">⚙️ Config</a>
+    </nav>
+    <div class="admin-mobile-tabs" id="admin-mobile-tabs">
+        <button class="admin-mobile-tabs__btn admin-mobile-tabs__btn--active" data-mob-tab="overview">📊</button>
+        <button class="admin-mobile-tabs__btn" data-mob-tab="pending">⏳</button>
+        <button class="admin-mobile-tabs__btn" data-mob-tab="reports">🚩</button>
+        <button class="admin-mobile-tabs__btn" data-mob-tab="payments">💰</button>
+        <button class="admin-mobile-tabs__btn" data-mob-tab="users">👥</button>
+        <button class="admin-mobile-tabs__btn" data-mob-tab="articles">📰</button>
+        <button class="admin-mobile-tabs__btn" data-mob-tab="config">⚙️</button>
+    </div>
+    <main id="main-content">
+        <div class="admin-content" id="admin-content">
+            <div class="skeleton" style="height:400px"></div>
+        </div>
+    </main>
+    <footer id="site-footer"></footer>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <div id="modal-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/assets/js/supabase-config.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script src="/assets/js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
+                    if (!document.getElementById('admin-content').innerHTML.includes('Overview')) {
+                        initAdmin();
+                    }
+                }
+            });
+        });
+        let currentTab = 'overview';
+
+        async function initAdmin() {
+            if (!Auth.isLoggedIn()) { UI.authModal('signin'); return; }
+            const user = Auth.getUser();
+            if (!Auth.isAdmin()) { document.getElementById('admin-content').innerHTML = '<div class="empty-state"><div class="empty-state__icon">🔒</div><div class="empty-state__title">Access Denied</div><div class="empty-state__text">Admin access required.</div><a href="/" class="btn btn-primary">Go Home</a></div>'; return; }
+            document.querySelectorAll('.admin-sidebar__link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentTab = link.dataset.tab;
+                    document.querySelectorAll('.admin-sidebar__link').forEach(l => l.classList.remove('admin-sidebar__link--active'));
+                    link.classList.add('admin-sidebar__link--active');
+                    syncMobileTabs();
+                    loadTab();
+                });
+            });
+            document.querySelectorAll('[data-mob-tab]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentTab = btn.dataset.mobTab;
+                    document.querySelectorAll('[data-mob-tab]').forEach(b => b.classList.remove('admin-mobile-tabs__btn--active'));
+                    btn.classList.add('admin-mobile-tabs__btn--active');
+                    syncSidebarTabs();
+                    loadTab();
+                });
+            });
+            loadTab();
+        }
+
+        function syncMobileTabs() {
+            document.querySelectorAll('[data-mob-tab]').forEach(b => {
+                b.classList.toggle('admin-mobile-tabs__btn--active', b.dataset.mobTab === currentTab);
+            });
+        }
+
+        function syncSidebarTabs() {
+            document.querySelectorAll('.admin-sidebar__link').forEach(l => {
+                l.classList.toggle('admin-sidebar__link--active', l.dataset.tab === currentTab);
+            });
+        }
+
+        async function loadTab() {
+            const el = document.getElementById('admin-content');
+            el.innerHTML = '<div class="skeleton" style="height:400px"></div>';
+            switch (currentTab) {
+                case 'overview': await loadOverview(el); break;
+                case 'pending': await loadPending(el); break;
+                case 'reports': await loadReports(el); break;
+                case 'payments': await loadPayments(el); break;
+                case 'users': await loadUsers(el); break;
+                case 'articles': await loadArticles(el); break;
+                case 'config': await loadConfig(el); break;
+            }
+        }
+
+        async function loadOverview(el) {
+            const stats = await DB.stats.getGlobal();
+            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">📊 Overview</h2>' +
+                '<div class="grid grid-4">' +
+                ['Groups|' + (stats?.total_groups || 0), 'Users|' + (stats?.total_users || 0), 'Views|' + (stats?.total_views || 0), 'Countries|' + (stats?.total_countries || 0)].map(s => {
+                    const [l, v] = s.split('|');
+                    return '<div class="stat-card"><div class="stat-card__value">' + UI.formatNumber(v) + '</div><div class="stat-card__label">' + l + '</div></div>';
+                }).join('') + '</div>';
+        }
+
+        async function loadPending(el) {
+            const result = await DB.pending.getAll({ status: 'pending' });
+            const pending = result?.data || [];
+            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">⏳ Pending Groups (' + pending.length + ')</h2>';
+            if (!pending.length) { el.innerHTML += '<div class="empty-state"><div class="empty-state__icon">✅</div><div class="empty-state__title">All Clear</div></div>'; return; }
+            el.innerHTML += '<div class="card"><div class="card__body" style="padding:0;overflow-x:auto"><table class="admin-table"><thead><tr><th>Name</th><th>Platform</th><th>Category</th><th>Date</th><th>Actions</th></tr></thead><tbody>' +
+                pending.map(g => '<tr><td>' + Security.sanitize(g.name) + '</td><td>' + Security.sanitize(g.platform) + '</td><td>' + Security.sanitize(g.category) + '</td><td>' + UI.formatDate(g.submitted_at) + '</td>' +
+                    '<td><button class="btn btn-sm" style="background:var(--success);color:#fff;margin-right:4px" data-action="approve" data-id="' + g.id + '">✅</button><button class="btn btn-sm btn-danger" data-action="reject" data-id="' + g.id + '">❌</button></td></tr>').join('') +
+                '</tbody></table></div></div>';
+            el.querySelectorAll('[data-action]').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const action = btn.dataset.action;
+                    const id = btn.dataset.id;
+                    if (action === 'approve') { await DB.pending.approve(id); UI.toast('Group approved!', 'success'); }
+                    else { await DB.pending.reject(id); UI.toast('Group rejected', 'info'); }
+                    loadPending(el);
+                });
+            });
+        }
+
+        async function loadReports(el) {
+            const result = await DB.reports.getAll({ status: 'pending' });
+            const reports = result?.data || [];
+            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">🚩 Reports (' + reports.length + ')</h2>';
+            if (!reports.length) { el.innerHTML += '<div class="empty-state"><div class="empty-state__icon">✅</div><div class="empty-state__title">No Reports</div></div>'; return; }
+            el.innerHTML += '<div class="card"><div class="card__body" style="padding:0;overflow-x:auto"><table class="admin-table"><thead><tr><th>Group</th><th>Reason</th><th>Date</th><th>Actions</th></tr></thead><tbody>' +
+                reports.map(r => '<tr><td>' + Security.sanitize(r.group_name || r.group_id) + '</td><td>' + Security.sanitize(r.reason) + '</td><td>' + UI.formatDate(r.created_at) + '</td>' +
+                    '<td><button class="btn btn-sm btn-danger" data-dismiss="' + r.id + '">Dismiss</button></td></tr>').join('') +
+                '</tbody></table></div></div>';
+            el.querySelectorAll('[data-dismiss]').forEach(btn => {
+                btn.addEventListener('click', async () => { await DB.reports.resolve(btn.dataset.dismiss); UI.toast('Report dismissed', 'info'); loadReports(el); });
+            });
+        }
+
+        async function loadPayments(el) {
+            const result = await DB.payments.getAll();
+            const payments = result?.data || [];
+            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">💰 Payments (' + payments.length + ')</h2>';
+            if (!payments.length) { el.innerHTML += '<div class="empty-state"><div class="empty-state__icon">💰</div><div class="empty-state__title">No Payments</div></div>'; return; }
+            el.innerHTML += '<div class="card"><div class="card__body" style="padding:0;overflow-x:auto"><table class="admin-table"><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
+                payments.map(p => '<tr><td>' + Security.sanitize(p.user_id?.slice(0, 8)) + '</td><td>' + Security.sanitize(p.service) + '</td><td>' + UI.formatCurrency(p.amount) + '</td>' +
+                    '<td>' + (p.status === 'verified' ? '✅' : p.status === 'rejected' ? '❌' : '⏳') + ' ' + Security.sanitize(p.status) + '</td>' +
+                    (p.status === 'pending' ? '<td><button class="btn btn-sm" style="background:var(--success);color:#fff;margin-right:4px" data-verify="' + p.id + '">✅</button><button class="btn btn-sm btn-danger" data-deny="' + p.id + '">❌</button></td>' : '<td>—</td>') +
+                    '</tr>').join('') +
+                '</tbody></table></div></div>';
+            el.querySelectorAll('[data-verify]').forEach(btn => {
+                btn.addEventListener('click', async () => { await DB.payments.verify(btn.dataset.verify); UI.toast('Payment verified', 'success'); loadPayments(el); });
+            });
+            el.querySelectorAll('[data-deny]').forEach(btn => {
+                btn.addEventListener('click', async () => { await DB.payments.reject(btn.dataset.deny); UI.toast('Payment denied', 'info'); loadPayments(el); });
+            });
+        }
+
+        async function loadUsers(el) {
+            const result = await DB.admin.getUsers({ limit: 50 });
+            const data = result?.data || [];
+            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">👥 Users</h2>';
+            if (!data.length) { el.innerHTML += '<div class="empty-state"><div class="empty-state__icon">👥</div><div class="empty-state__title">No Users</div></div>'; return; }
+            el.innerHTML += '<div class="card"><div class="card__body" style="padding:0;overflow-x:auto"><table class="admin-table"><thead><tr><th>Name</th><th>Email</th><th>GXP</th><th>Role</th></tr></thead><tbody>' +
+                data.map(u => '<tr><td>' + Security.sanitize(u.display_name || '') + '</td><td>' + Security.sanitize(u.email || '') + '</td><td>' + (u.gxp || 0) + '</td><td>' + (u.role === 'admin' ? '👑 Admin' : u.role === 'moderator' ? '🛡️ Mod' : '—') + '</td></tr>').join('') +
+                '</tbody></table></div></div>';
+        }
+
+        async function loadArticles(el) {
+            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">📰 Articles</h2><button class="btn btn-primary btn-sm" id="new-article" style="margin-bottom:var(--space-4)">+ New Article</button><div id="articles-table"></div>';
+            document.getElementById('new-article')?.addEventListener('click', () => openArticleEditor());
+            const { data } = await DB.articles.getAll();
+            if (!data?.length) { document.getElementById('articles-table').innerHTML = '<div style="color:var(--text-tertiary)">No articles</div>'; return; }
+            document.getElementById('articles-table').innerHTML = '<div class="card"><div class="card__body" style="padding:0;overflow-x:auto"><table class="admin-table"><thead><tr><th>Title</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
+                data.map(a => '<tr><td>' + Security.sanitize(a.title) + '</td><td>' + (a.published ? '✅' : '📝') + '</td><td><button class="btn btn-sm btn-secondary" data-edit-article="' + a.id + '">Edit</button></td></tr>').join('') +
+                '</tbody></table></div></div>';
+            document.querySelectorAll('[data-edit-article]').forEach(btn => {
+                btn.addEventListener('click', () => { const article = data.find(a => a.id === btn.dataset.editArticle); openArticleEditor(article); });
+            });
+        }
+
+        function openArticleEditor(article) {
+            UI.modal({
+                title: article ? 'Edit Article' : 'New Article',
+                content: '<div class="form-group"><label class="form-label">Title</label><input class="form-input" id="art-title" value="' + Security.sanitize(article?.title || '') + '"></div>' +
+                    '<div class="form-group"><label class="form-label">Slug</label><input class="form-input" id="art-slug" value="' + Security.sanitize(article?.slug || '') + '"></div>' +
+                    '<div class="form-group"><label class="form-label">Excerpt</label><textarea class="form-textarea" id="art-excerpt" style="min-height:60px">' + Security.sanitize(article?.excerpt || '') + '</textarea></div>' +
+                    '<div class="form-group"><label class="form-label">Content (HTML)</label><textarea class="form-textarea" id="art-content" style="min-height:160px">' + Security.sanitize(article?.content || '') + '</textarea></div>' +
+                    '<div class="form-group"><label class="form-label">Author Name</label><input class="form-input" id="art-author" value="' + Security.sanitize(article?.author_name || '') + '"></div>' +
+                    '<div class="form-group"><label><input type="checkbox" id="art-published"' + (article?.published ? ' checked' : '') + '> Published</label></div>',
+                footer: '<button class="btn btn-secondary" id="art-cancel">Cancel</button><button class="btn btn-primary" id="art-save">Save</button>',
+                size: 'large'
+            });
+            document.getElementById('art-cancel')?.addEventListener('click', UI.closeModal);
+            document.getElementById('art-save')?.addEventListener('click', async () => {
+                const d = { title: document.getElementById('art-title').value, slug: document.getElementById('art-slug').value, excerpt: document.getElementById('art-excerpt').value, content: document.getElementById('art-content').value, author_name: document.getElementById('art-author').value, published: document.getElementById('art-published').checked };
+                if (article) { await DB.articles.update(article.id, d); }
+                else { await DB.articles.create(d); }
+                UI.toast('Article saved!', 'success'); UI.closeModal(); loadTab();
+            });
+        }
+
+        async function loadConfig(el) {
+            const config = await DB.config.getSettings();
+            el.innerHTML = '<h2 style="margin-bottom:var(--space-6)">⚙️ Site Config</h2>' +
+                '<div class="card"><div class="card__body" style="padding:var(--space-6)">' +
+                '<div class="form-group"><label class="form-label">Announcement Text</label><input class="form-input" id="cfg-announcement" value="' + Security.sanitize(config?.announcement_text || '') + '"></div>' +
+                '<div class="form-group"><label class="form-label">Announcement Link</label><input class="form-input" id="cfg-announcement-link" value="' + Security.sanitize(config?.announcement_link || '') + '"></div>' +
+                '<div class="form-group"><label><input type="checkbox" id="cfg-maintenance"' + (config?.maintenance_mode ? ' checked' : '') + '> Maintenance Mode</label></div>' +
+                '<button class="btn btn-primary btn-sm" id="save-config">Save Config</button>' +
+                '</div></div>';
+            document.getElementById('save-config')?.addEventListener('click', async () => {
+                await DB.config.updateSettings({
+                    announcement_text: document.getElementById('cfg-announcement').value,
+                    announcement_link: document.getElementById('cfg-announcement-link').value,
+                    maintenance_mode: document.getElementById('cfg-maintenance').checked
+                });
+                UI.toast('Config saved!', 'success');
+            });
+        }
+    </script>
+</body>
+
+</html>
