@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting... — GroupsMix</title>
+    <title>Redirecting... &mdash; GroupsMix</title>
     <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/shared.css">
 </head>
@@ -12,33 +12,44 @@
 <body>
     <main id="main-content" style="min-height:100vh;display:flex;align-items:center;justify-content:center">
         <div style="text-align:center;padding:var(--space-8)">
-            <div style="font-size:var(--text-4xl);margin-bottom:var(--space-4)">🔗</div>
+            <div style="font-size:var(--text-4xl);margin-bottom:var(--space-4)">&#128279;</div>
             <h1 style="margin-bottom:var(--space-4)">Redirecting...</h1>
-            <p style="color:var(--text-secondary);margin-bottom:var(--space-6)">You are being redirected to the group.
-                If nothing happens, click the button below.</p>
-            <a id="go-link" href="#" class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">Open Group
-                →</a>
-            <div style="margin-top:var(--space-4)"><a href="/" style="font-size:var(--text-sm)">←
-                    Back to GroupsMix</a></div>
+            <p style="color:var(--text-secondary);margin-bottom:var(--space-6)">You are being redirected to the group. If nothing happens, click the button below.</p>
+            <a id="go-link" href="#" class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">Open Group &rarr;</a>
+            <div style="margin-top:var(--space-4)"><a href="/" style="font-size:var(--text-sm)">&larr; Back to GroupsMix</a></div>
         </div>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="/assets/js/supabase-config.js"></script>
     <script src="/assets/js/app.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get('id');
+        document.addEventListener('DOMContentLoaded', async function() {
+            var params = new URLSearchParams(window.location.search);
+            var id = params.get('id');
+            var encodedLink = params.get('ref');
+
+            /* Support Base64-obfuscated links via ?ref= param */
+            if (encodedLink) {
+                try {
+                    var decoded = Security.deobfuscateLink(encodedLink);
+                    if (decoded && Security.isValidUrl(decoded)) {
+                        document.getElementById('go-link').href = decoded;
+                        setTimeout(function() { window.location.href = decoded; }, 1500);
+                        return;
+                    }
+                } catch(e) { /* fall through to id-based lookup */ }
+            }
+
             if (!id) { window.location.href = '/'; return; }
             try {
-                const group = await DB.groups.getOne(id);
+                var group = await DB.groups.getOne(id);
                 if (!group || !group.link) { window.location.href = '/'; return; }
                 if (!Security.isValidUrl(group.link)) { window.location.href = '/'; return; }
                 document.getElementById('go-link').href = group.link;
                 DB.groups.incrementClicks(id);
                 RecentlyViewed.add(group);
-                setTimeout(() => { window.location.href = group.link; }, 1500);
-            } catch { window.location.href = '/'; }
+                setTimeout(function() { window.location.href = group.link; }, 1500);
+            } catch(e) { window.location.href = '/'; }
         });
     </script>
 </body>
