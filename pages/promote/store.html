@@ -5,30 +5,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Store | GroupsMix</title>
-    <meta name="description" content="Shop official GroupsMix merchandise and premium group assets.">
+    <meta name="description" content="Shop official GroupsMix premium products, VIP memberships, and group boosts.">
     <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"></noscript>
     <link rel="stylesheet" href="/assets/css/shared.css">
     <style>
-        .store-badge {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #000;
-            padding: var(--space-1) var(--space-2);
-            border-radius: var(--radius-sm);
-            font-size: var(--text-xs);
-            font-weight: var(--font-bold);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-            margin-bottom: var(--space-2);
-        }
-
-        .price-tag {
-            font-size: var(--text-2xl);
-            font-weight: var(--font-bold);
-            color: var(--text-primary);
-            margin: var(--space-3) 0;
-        }
+        .store-hero{text-align:center;padding:var(--space-8) 0 var(--space-6)}
+        .store-hero__subtitle{color:var(--text-secondary);margin-top:var(--space-2);max-width:600px;margin-left:auto;margin-right:auto}
+        .store-badge{background:linear-gradient(135deg,#FFD700 0%,#FFA500 100%);color:#000;padding:var(--space-1) var(--space-2);border-radius:var(--radius-sm);font-size:var(--text-xs);font-weight:var(--font-bold);text-transform:uppercase;letter-spacing:.5px;display:inline-block;margin-bottom:var(--space-2)}
+        .store-badge--sub{background:var(--accent-primary);color:#fff}
+        .store-badge--boost{background:#10B981;color:#fff}
+        .store-badge--vip{background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff}
+        .price-tag{font-size:var(--text-2xl);font-weight:var(--font-bold);color:var(--text-primary);margin:var(--space-3) 0}
+        .price-tag__period{font-size:var(--text-sm);color:var(--text-tertiary);font-weight:normal}
+        .store-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-4)}
+        .store-card{background:var(--bg-card);border:1px solid var(--border-primary);border-radius:var(--radius-xl);padding:var(--space-6);text-align:center;transition:transform .2s ease,box-shadow .2s ease}
+        .store-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+        .store-card--featured{border:2px solid var(--accent-primary);position:relative}
+        .store-card--featured::before{content:'Most Popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent-primary);color:#fff;padding:2px 16px;border-radius:var(--radius-full);font-size:11px;font-weight:var(--font-bold);text-transform:uppercase;white-space:nowrap}
+        .store-card__icon{font-size:var(--text-5xl);margin-bottom:var(--space-4)}
+        .store-card__title{font-size:var(--text-lg);font-weight:var(--font-semibold);margin-bottom:var(--space-2)}
+        .store-card__desc{color:var(--text-secondary);font-size:var(--text-sm);min-height:40px;line-height:1.6;margin-bottom:var(--space-2)}
+        .store-card__features{list-style:none;padding:0;margin:0 0 var(--space-4);text-align:left}
+        .store-card__features li{padding:var(--space-1) 0;font-size:var(--text-sm);color:var(--text-secondary);display:flex;align-items:center;gap:var(--space-2)}
+        .store-card__features li::before{content:'&#10003;';color:var(--success);font-weight:var(--font-bold);flex-shrink:0}
+        .store-gxp-info{margin-top:var(--space-8);padding:var(--space-6);background:var(--bg-tertiary);border-radius:var(--radius-lg)}
+        .store-gxp-info__title{font-size:var(--text-lg);font-weight:var(--font-bold);margin-bottom:var(--space-3);text-align:center}
+        .gxp-tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-3);margin-top:var(--space-4)}
+        .gxp-tier{text-align:center;padding:var(--space-3);border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--border-primary)}
+        .gxp-tier__name{font-weight:var(--font-semibold);font-size:var(--text-sm);margin-bottom:var(--space-1)}
+        .gxp-tier__range{font-size:var(--text-xs);color:var(--text-tertiary)}
+        .store-ad-section{margin-top:var(--space-8);padding:var(--space-6);background:var(--bg-tertiary);border-radius:var(--radius-lg);text-align:center}
+        @media(max-width:767px){.store-grid{grid-template-columns:1fr}.gxp-tiers{grid-template-columns:repeat(2,1fr)}}
     </style>
 </head>
 
@@ -39,69 +50,91 @@
 
     <main id="main-content" class="page-container">
         <div class="content-wrapper">
-            <div class="section__header"
-                style="flex-direction:column;align-items:center;text-align:center;margin-bottom:var(--space-8)">
-                <div style="font-size:var(--text-4xl);margin-bottom:var(--space-3)">🛒</div>
-                <h1 class="page-title">GroupsMix Store</h1>
-                <p style="color:var(--text-secondary);max-width:600px">Premium assets, verified checks, and exclusive
-                    perks to make your group stand out.</p>
-            </div>
+            <section class="store-hero">
+                <div style="font-size:var(--text-4xl);margin-bottom:var(--space-3)">&#128722;</div>
+                <h1>GroupsMix Store</h1>
+                <p class="store-hero__subtitle">Premium assets, verified checks, VIP memberships, and exclusive perks to make your group stand out.</p>
+            </section>
 
-            <div class="grid grid-3">
+            <div class="store-grid">
                 <!-- Verified Badge -->
-                <div class="card">
-                    <div class="card__body" style="text-align:center;padding:var(--space-6)">
-                        <div class="store-badge">Best Seller</div>
-                        <div style="font-size:var(--text-5xl);margin-bottom:var(--space-4)">✅</div>
-                        <h3 style="margin-bottom:var(--space-2)">Verified Group Tick</h3>
-                        <p style="color:var(--text-secondary);font-size:var(--text-sm);min-height:40px">Get the official
-                            blue checkmark next to your group's name across the entire platform.</p>
-                        <div class="price-tag">$19.99<span
-                                style="font-size:var(--text-sm);color:var(--text-tertiary);font-weight:normal">/one-time</span>
-                        </div>
-                        <button class="btn btn-primary btn-full"
-                            data-toast="Store payments are currently disabled.">Purchase</button>
-                    </div>
+                <div class="store-card">
+                    <div class="store-badge">Best Seller</div>
+                    <div class="store-card__icon">&#9989;</div>
+                    <h3 class="store-card__title">Verified Group Tick</h3>
+                    <p class="store-card__desc">Get the official blue checkmark next to your group's name across the entire platform.</p>
+                    <ul class="store-card__features">
+                        <li>Blue verified badge on your group card</li>
+                        <li>Higher trust score in search results</li>
+                        <li>Priority in category listings</li>
+                    </ul>
+                    <div class="price-tag">$19.99<span class="price-tag__period">/one-time</span></div>
+                    <button class="btn btn-primary btn-full" data-toast="Store payments are currently being set up. Check back soon!">Purchase</button>
                 </div>
 
-                <!-- Premium Border -->
-                <div class="card" style="border: 2px solid var(--accent-primary)">
-                    <div class="card__body" style="text-align:center;padding:var(--space-6)">
-                        <div class="store-badge" style="background:var(--accent-primary);color:#fff">Subscription</div>
-                        <div style="font-size:var(--text-5xl);margin-bottom:var(--space-4)">✨</div>
-                        <h3 style="margin-bottom:var(--space-2)">Premium Styling</h3>
-                        <p style="color:var(--text-secondary);font-size:var(--text-sm);min-height:40px">Animate your
-                            group card with a glowing border and custom background color.</p>
-                        <div class="price-tag">$4.99<span
-                                style="font-size:var(--text-sm);color:var(--text-tertiary);font-weight:normal">/month</span>
-                        </div>
-                        <button class="btn btn-primary btn-full"
-                            data-toast="Store payments are currently disabled.">Subscribe</button>
-                    </div>
+                <!-- VIP Membership -->
+                <div class="store-card store-card--featured">
+                    <div class="store-badge store-badge--vip">VIP</div>
+                    <div class="store-card__icon">&#128081;</div>
+                    <h3 class="store-card__title">VIP Membership</h3>
+                    <p class="store-card__desc">Ultimate visibility package with premium styling, priority ranking, and exclusive VIP badge.</p>
+                    <ul class="store-card__features">
+                        <li>Gold VIP badge on your group</li>
+                        <li>Top placement in all listings</li>
+                        <li>Featured in MarketPlus grid</li>
+                        <li>Animated card border effect</li>
+                        <li>+200 GXP bonus monthly</li>
+                    </ul>
+                    <div class="price-tag">$9.99<span class="price-tag__period">/month</span></div>
+                    <button class="btn btn-primary btn-full" data-toast="Store payments are currently being set up. Check back soon!">Subscribe</button>
+                </div>
+
+                <!-- Premium Styling -->
+                <div class="store-card">
+                    <div class="store-badge store-badge--sub">Subscription</div>
+                    <div class="store-card__icon">&#10024;</div>
+                    <h3 class="store-card__title">Premium Styling</h3>
+                    <p class="store-card__desc">Animate your group card with a glowing border and custom background color.</p>
+                    <ul class="store-card__features">
+                        <li>Glowing animated card border</li>
+                        <li>Custom accent color</li>
+                        <li>+50 GXP bonus monthly</li>
+                    </ul>
+                    <div class="price-tag">$4.99<span class="price-tag__period">/month</span></div>
+                    <button class="btn btn-primary btn-full" data-toast="Store payments are currently being set up. Check back soon!">Subscribe</button>
                 </div>
 
                 <!-- Search Boost -->
-                <div class="card">
-                    <div class="card__body" style="text-align:center;padding:var(--space-6)">
-                        <div class="store-badge" style="background:#10B981;color:#fff">One-Time</div>
-                        <div style="font-size:var(--text-5xl);margin-bottom:var(--space-4)">🚀</div>
-                        <h3 style="margin-bottom:var(--space-2)">Search Boost Token</h3>
-                        <p style="color:var(--text-secondary);font-size:var(--text-sm);min-height:40px">Bump your
-                            group's ranking in search results and category pages for 24 hours.</p>
-                        <div class="price-tag">$2.99<span
-                                style="font-size:var(--text-sm);color:var(--text-tertiary);font-weight:normal">/each</span>
-                        </div>
-                        <button class="btn btn-primary btn-full"
-                            data-toast="Store payments are currently disabled.">Purchase</button>
-                    </div>
+                <div class="store-card">
+                    <div class="store-badge store-badge--boost">One-Time</div>
+                    <div class="store-card__icon">&#128640;</div>
+                    <h3 class="store-card__title">Search Boost Token</h3>
+                    <p class="store-card__desc">Bump your group's ranking in search results and category pages for 24 hours.</p>
+                    <ul class="store-card__features">
+                        <li>24-hour ranking boost</li>
+                        <li>Highlighted in search results</li>
+                        <li>+100 temporary GXP</li>
+                    </ul>
+                    <div class="price-tag">$2.99<span class="price-tag__period">/each</span></div>
+                    <button class="btn btn-primary btn-full" data-toast="Store payments are currently being set up. Check back soon!">Purchase</button>
                 </div>
             </div>
 
-            <div
-                style="margin-top:var(--space-8);padding:var(--space-6);background:var(--bg-tertiary);border-radius:var(--radius-lg);text-align:center">
+            <!-- GXP Ranking System Info -->
+            <div class="store-gxp-info">
+                <div class="store-gxp-info__title">&#9889; GXP Ranking System</div>
+                <p style="color:var(--text-secondary);font-size:var(--text-sm);text-align:center;max-width:600px;margin:0 auto">GroupsMix Experience Points (GXP) determine your group's visibility and ranking. Earn GXP through engagement, purchases, and community participation.</p>
+                <div class="gxp-tiers">
+                    <div class="gxp-tier"><div class="gxp-tier__name">&#127793; Starter</div><div class="gxp-tier__range">0 - 99 GXP</div></div>
+                    <div class="gxp-tier"><div class="gxp-tier__name">&#11088; Rising</div><div class="gxp-tier__range">100 - 499 GXP</div></div>
+                    <div class="gxp-tier"><div class="gxp-tier__name">&#128142; Premium</div><div class="gxp-tier__range">500 - 999 GXP</div></div>
+                    <div class="gxp-tier"><div class="gxp-tier__name">&#128081; Elite</div><div class="gxp-tier__range">1000+ GXP</div></div>
+                </div>
+            </div>
+
+            <div class="store-ad-section">
                 <h3 style="margin-bottom:var(--space-2)">Looking to Advertise?</h3>
-                <p style="color:var(--text-secondary);margin-bottom:var(--space-4)">We offer banner placements and
-                    sitewide takeovers for agencies and large networks.</p>
+                <p style="color:var(--text-secondary);margin-bottom:var(--space-4)">We offer banner placements and sitewide takeovers for agencies and large networks.</p>
                 <a href="/advertise" class="btn btn-secondary">View Advertising Options</a>
             </div>
         </div>
@@ -116,21 +149,16 @@
     <script src="/assets/js/app.js"></script>
     <script src="/assets/js/components.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             if (!CONFIG.features.store) {
                 var main = document.getElementById('main-content');
                 if (main) {
-                    main.innerHTML = '<div class="content-wrapper" style="text-align:center;padding:var(--space-16) var(--space-4)">' +
-                        '<div style="font-size:var(--text-5xl);margin-bottom:var(--space-4)">🛒</div>' +
-                        '<h1 style="margin-bottom:var(--space-3)">Store Coming Soon</h1>' +
-                        '<p style="color:var(--text-secondary);max-width:500px;margin:0 auto var(--space-6)">We\'re working hard to bring you premium assets, verified checks, and exclusive perks. Stay tuned!</p>' +
-                        '<a href="/" class="btn btn-primary">Back to Home</a>' +
-                        '</div>';
+                    main.innerHTML = '<div class="content-wrapper" style="text-align:center;padding:var(--space-16) var(--space-4)"><div style="font-size:var(--text-5xl);margin-bottom:var(--space-4)">&#128722;</div><h1 style="margin-bottom:var(--space-3)">Store Coming Soon</h1><p style="color:var(--text-secondary);max-width:500px;margin:0 auto var(--space-6)">We are working hard to bring you premium assets, verified checks, and exclusive perks. Stay tuned!</p><a href="/" class="btn btn-primary">Back to Home</a></div>';
                 }
                 return;
             }
-            document.querySelectorAll('[data-toast]').forEach(el => {
-                el.addEventListener('click', (e) => {
+            document.querySelectorAll('[data-toast]').forEach(function(el) {
+                el.addEventListener('click', function(e) {
                     e.preventDefault();
                     UI.toast(el.dataset.toast, 'info');
                 });
