@@ -20,14 +20,14 @@ const CONFIG = {
         user: 120000, donations: 900000
     },
     platforms: [
-        { id: 'whatsapp', name: 'WhatsApp', emoji: '💬', types: ['group', 'channel', 'community'] },
-        { id: 'telegram', name: 'Telegram', emoji: '✈️', types: ['group', 'channel', 'supergroup', 'bot'] },
-        { id: 'discord', name: 'Discord', emoji: '🎮', types: ['server'] },
-        { id: 'facebook', name: 'Facebook', emoji: '👥', types: ['group', 'page'] },
-        { id: 'reddit', name: 'Reddit', emoji: '🔴', types: ['subreddit'] },
-        { id: 'twitter', name: 'Twitter/X', emoji: '🐦', types: ['community', 'list'] },
-        { id: 'youtube', name: 'YouTube', emoji: '▶️', types: ['channel'] },
-        { id: 'twitch', name: 'Twitch', emoji: '🎬', types: ['channel', 'community'] }
+        { id: 'whatsapp', name: 'WhatsApp Groups', emoji: '💬', types: ['group', 'community'], kind: 'group' },
+        { id: 'whatsapp_channel', name: 'WhatsApp Channels', emoji: '📢', types: ['channel'], kind: 'channel' },
+        { id: 'telegram', name: 'Telegram Groups', emoji: '✈️', types: ['group', 'supergroup'], kind: 'group' },
+        { id: 'telegram_channel', name: 'Telegram Channels', emoji: '📡', types: ['channel'], kind: 'channel' },
+        { id: 'telegram_bot', name: 'Telegram Bots', emoji: '🤖', types: ['bot'], kind: 'bot' },
+        { id: 'discord', name: 'Discord', emoji: '🎮', types: ['server'], kind: 'group' },
+        { id: 'facebook', name: 'Facebook', emoji: '👥', types: ['group', 'page'], kind: 'group' },
+        { id: 'twitter', name: 'Twitter/X', emoji: '🐦', types: ['community', 'list'], kind: 'group' }
     ],
     categories: [
         { id: 'crypto', name: 'Crypto', emoji: '₿' }, { id: 'technology', name: 'Technology', emoji: '💻' },
@@ -100,7 +100,7 @@ const CONFIG = {
     },
     features: {
         reviews: true, leaderboard: true, scamWall: true, tools: true, articles: true,
-        store: false, marketplace: false, jobs: false, donate: true, ads: true
+        store: true, marketplace: true, jobs: false, donate: true, ads: true
     },
     announcement: { enabled: false, text: '', link: '', type: 'info' },
     cryptoWallets: { btc: '', usdt: '', sol: '' },
@@ -135,13 +135,13 @@ const CONFIG = {
     ],
     platformPatterns: {
         whatsapp: /^https:\/\/chat\.whatsapp\.com\//,
+        whatsapp_channel: /^https:\/\/(www\.)?whatsapp\.com\/channel\//,
         telegram: /^https:\/\/(t\.me|telegram\.me)\//,
+        telegram_channel: /^https:\/\/(t\.me|telegram\.me)\//,
+        telegram_bot: /^https:\/\/(t\.me|telegram\.me)\//,
         discord: /^https:\/\/(discord\.gg|discord\.com\/invite)\//,
         facebook: /^https:\/\/(www\.)?facebook\.com\//,
-        reddit: /^https:\/\/(www\.)?reddit\.com\/r\//,
-        twitter: /^https:\/\/(twitter\.com|x\.com)\//,
-        youtube: /^https:\/\/(www\.)?youtube\.com\//,
-        twitch: /^https:\/\/(www\.)?twitch\.tv\//
+        twitter: /^https:\/\/(twitter\.com|x\.com)\//
     },
     defaultSettings: {}
 };
@@ -262,6 +262,16 @@ const Security = {
                 this._behavioral.events.add('focusin');
             }
         }, { passive: true });
+    },
+
+    obfuscateLink(url) {
+        if (typeof url !== 'string' || !url) return '';
+        try { return btoa(unescape(encodeURIComponent(url))); } catch (e) { return ''; }
+    },
+
+    deobfuscateLink(encoded) {
+        if (typeof encoded !== 'string' || !encoded) return '';
+        try { return decodeURIComponent(escape(atob(encoded))); } catch (e) { return ''; }
     }
 };
 
