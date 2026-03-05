@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting... — GroupsMix</title>
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/css/shared.css">
+</head>
+
+<body>
+    <main id="main-content" style="min-height:100vh;display:flex;align-items:center;justify-content:center">
+        <div style="text-align:center;padding:var(--space-8)">
+            <div style="font-size:var(--text-4xl);margin-bottom:var(--space-4)">🔗</div>
+            <h1 style="margin-bottom:var(--space-4)">Redirecting...</h1>
+            <p style="color:var(--text-secondary);margin-bottom:var(--space-6)">You are being redirected to the group.
+                If nothing happens, click the button below.</p>
+            <a id="go-link" href="#" class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">Open Group
+                →</a>
+            <div style="margin-top:var(--space-4)"><a href="/" style="font-size:var(--text-sm)">←
+                    Back to GroupsMix</a></div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/assets/js/supabase-config.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (!id) { window.location.href = '/'; return; }
+            try {
+                const group = await DB.groups.getOne(id);
+                if (!group || !group.link) { window.location.href = '/'; return; }
+                document.getElementById('go-link').href = group.link;
+                DB.groups.incrementClicks(id);
+                RecentlyViewed.add(group);
+                setTimeout(() => { window.location.href = group.link; }, 1500);
+            } catch { window.location.href = '/'; }
+        });
+    </script>
+</body>
+
+</html>

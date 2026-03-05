@@ -1,0 +1,12 @@
+{
+  "name": "GroupsMix",
+  "short_name": "GroupsMix",
+  "description": "Discover Trusted Social Media Groups",
+  "start_url": "/pages/core/index.html",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#6c5ce7",
+  "icons": [
+    { "src": "/assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
