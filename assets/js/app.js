@@ -1446,8 +1446,11 @@ function openDrawer() {
     links += '<a href="/about" class="drawer__item">ℹ️ About</a>';
     links += '<a href="/contact" class="drawer__item">📞 Contact</a>';
     links += '<a href="/faq" class="drawer__item">❓ FAQ</a>';
+    links += '<a href="/support" class="drawer__item">🎓 Support Center</a>';
     links += '<a href="/privacy" class="drawer__item">🔒 Privacy</a>';
     links += '<a href="/terms" class="drawer__item">📜 Terms</a>';
+    links += '<div class="drawer__divider"></div>';
+    if (CONFIG.features.donate) links += '<a href="/fuel" class="drawer__item">❤️ Fuel the Community</a>';
     if (isLoggedIn) {
         links += '<div class="drawer__divider"></div>';
         links += '<a href="/dashboard" class="drawer__item">📊 Dashboard</a>';
@@ -1504,10 +1507,12 @@ function renderFooter() {
         '<a href="/about" class="site-footer__link">About</a>' +
         '<a href="/contact" class="site-footer__link">Contact</a>' +
         '<a href="/faq" class="site-footer__link">FAQ</a>' +
+        '<a href="/support" class="site-footer__link">Support Center</a>' +
         '<a href="/privacy" class="site-footer__link">Privacy</a>' +
         '<a href="/terms" class="site-footer__link">Terms</a>' +
         '</div>' +
         '</div>' +
+        (CONFIG.features.donate ? '<div style="text-align:center;padding:var(--space-4) 0 0"><a href="/fuel" class="site-footer__link" style="color:var(--accent-primary)">❤️ Fuel the Community</a></div>' : '') +
         '<div class="site-footer__bottom">© ' + new Date().getFullYear() + ' GroupsMix. All rights reserved.</div>' +
         '</div>';
 }
