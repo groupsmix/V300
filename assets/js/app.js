@@ -1468,7 +1468,7 @@ function renderFooter() {
         '<a href="/terms" class="site-footer__link">Terms</a>' +
         '</div>' +
         '</div>' +
-        '<div class="site-footer__bottom">© 2025 GroupsMix. All rights reserved.</div>' +
+        '<div class="site-footer__bottom">© ' + new Date().getFullYear() + ' GroupsMix. All rights reserved.</div>' +
         '</div>';
 }
 
@@ -1520,5 +1520,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSettings();
 });
 
-window.onerror = () => { };
-window.onunhandledrejection = (e) => { e.preventDefault(); };
+window.onerror = function (msg, src, line, col, err) {
+    if (err && err.message) console.warn('GlobalError:', err.message, src, line);
+};
+window.onunhandledrejection = function (e) {
+    if (e && e.reason) console.warn('UnhandledRejection:', e.reason.message || e.reason);
+};
