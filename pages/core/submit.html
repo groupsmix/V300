@@ -247,7 +247,14 @@
             const platform = CONFIG.platforms.find(p => p.id === document.getElementById('group-platform').value);
             const ts = document.getElementById('group-type');
             ts.innerHTML = '<option value="">Select Type</option>';
-            if (platform) platform.types.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t.charAt(0).toUpperCase() + t.slice(1); ts.appendChild(o); });
+            if (platform) {
+                platform.types.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t.charAt(0).toUpperCase() + t.slice(1); ts.appendChild(o); });
+                /* Add Bot option for platforms that support it */
+                if (platform.kind === 'bot' || platform.id === 'telegram' || platform.id === 'telegram_channel') {
+                    var hasBotOpt = Array.from(ts.options).some(function(o){ return o.value === 'bot'; });
+                    if (!hasBotOpt) { var bo = document.createElement('option'); bo.value = 'bot'; bo.textContent = 'Bot'; ts.appendChild(bo); }
+                }
+            }
         }
 
         function initTagInput() {
