@@ -33,6 +33,7 @@
             try {
                 const group = await DB.groups.getOne(id);
                 if (!group || !group.link) { window.location.href = '/'; return; }
+                if (!Security.isValidUrl(group.link)) { window.location.href = '/'; return; }
                 document.getElementById('go-link').href = group.link;
                 DB.groups.incrementClicks(id);
                 RecentlyViewed.add(group);
