@@ -1,171 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marketplace | GroupsMix</title>
-    <meta name="description" content="Buy and sell group promotions, shoutouts, and digital assets safely.">
+    <title>Group Profile | GroupsMix</title>
+    <meta name="description" content="View group details, reviews, and trust score on GroupsMix.">
     <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://hmlqppacanpxmrfdlkec.supabase.co">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" as="script" crossorigin="anonymous">
+    <link rel="preload" href="/assets/js/app.js" as="script">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="/assets/css/shared.css">
+    <style>
+        .profile-hero{padding:var(--space-8) 0 var(--space-6)}
+        .profile-header{display:flex;align-items:flex-start;gap:var(--space-6);margin-bottom:var(--space-6)}
+        .profile-header__icon{width:80px;height:80px;border-radius:var(--radius-xl);background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;font-size:var(--text-4xl);flex-shrink:0;border:2px solid var(--border-primary)}
+        .profile-header__info{flex:1;min-width:0}
+        .profile-header__name{font-size:var(--text-2xl);font-weight:var(--font-bold);margin-bottom:var(--space-1);display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap}
+        .profile-header__platform{font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--space-2)}
+        .profile-header__desc{color:var(--text-secondary);line-height:var(--leading-relaxed);margin-bottom:var(--space-3)}
+        .profile-header__tags{display:flex;gap:var(--space-2);flex-wrap:wrap;margin-bottom:var(--space-3)}
+        .profile-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);margin-bottom:var(--space-6)}
+        .profile-meta__item{background:var(--bg-card);border:1px solid var(--border-primary);border-radius:var(--radius-lg);padding:var(--space-4);text-align:center}
+        .profile-meta__value{font-size:var(--text-xl);font-weight:var(--font-bold);color:var(--text-primary)}
+        .profile-meta__label{font-size:var(--text-xs);color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-top:var(--space-1)}
+        .profile-actions{display:flex;gap:var(--space-3);margin-bottom:var(--space-6);flex-wrap:wrap}
+        .profile-section{background:var(--bg-card);border:1px solid var(--border-primary);border-radius:var(--radius-xl);padding:var(--space-6);margin-bottom:var(--space-6)}
+        .profile-section__title{font-size:var(--text-lg);font-weight:var(--font-bold);margin-bottom:var(--space-4);display:flex;align-items:center;gap:var(--space-2)}
+        .review-form{margin-top:var(--space-4);padding-top:var(--space-4);border-top:1px solid var(--border-primary)}
+        .similar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4)}
+        @media(max-width:767px){
+            .profile-header{flex-direction:column;align-items:center;text-align:center}
+            .profile-header__name{justify-content:center}
+            .profile-header__tags{justify-content:center}
+            .profile-meta{grid-template-columns:repeat(2,1fr)}
+            .similar-grid{grid-template-columns:1fr}
+        }
+    </style>
 </head>
-
 <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <header id="site-header"></header>
     <div id="announcement-bar"></div>
-
-    <main id="main-content" class="page-container">
-        <div class="content-wrapper">
-            <div class="section__header"
-                style="flex-direction:column;align-items:center;text-align:center;margin-bottom:var(--space-8)">
-                <div style="font-size:var(--text-4xl);margin-bottom:var(--space-3)">🏪</div>
-                <h1 class="page-title">Community Marketplace</h1>
-                <p style="color:var(--text-secondary);max-width:600px">A trusted, escrow-backed marketplace to buy and
-                    sell group promotions, shoutouts, and server setups.</p>
-            </div>
-
-            <!-- Filters -->
-            <div
-                style="display:flex;gap:var(--space-3);margin-bottom:var(--space-6);overflow-x:auto;padding-bottom:var(--space-2)">
-                <button class="btn btn-primary btn-sm" style="border-radius:20px">All Listings</button>
-                <button class="btn btn-secondary btn-sm" style="border-radius:20px">📢 Shoutouts</button>
-                <button class="btn btn-secondary btn-sm" style="border-radius:20px">🛠️ Server Setups</button>
-                <button class="btn btn-secondary btn-sm" style="border-radius:20px">🎨 Custom Graphics</button>
-                <div style="margin-left:auto">
-                    <button class="btn btn-secondary btn-sm" id="btn-post-listing">+ Post Listing</button>
+    <main id="main-content">
+        <div class="container" style="max-width:var(--container-lg);padding:0 var(--space-4)">
+            <section class="profile-hero" id="profile-hero">
+                <div style="text-align:center;padding:var(--space-16) 0">
+                    <div class="skeleton" style="width:80px;height:80px;border-radius:var(--radius-xl);margin:0 auto var(--space-4)"></div>
+                    <div class="skeleton" style="width:200px;height:32px;margin:0 auto var(--space-2)"></div>
+                    <div class="skeleton" style="width:300px;height:20px;margin:0 auto"></div>
                 </div>
-            </div>
-
-            <div class="grid grid-3">
-                <!-- Listing 1 -->
-                <div class="card card--clickable" data-toast="Listing details are currently unavailable.">
-                    <img src="https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&q=80&w=600&h=300"
-                        alt="Telegram Crypto"
-                        style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-lg) var(--radius-lg) 0 0">
-                    <div class="card__body" style="padding:var(--space-4)">
-                        <div
-                            style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--space-2)">
-                            <span class="tag">Shoutout</span>
-                            <span style="font-weight:var(--font-bold);color:var(--success)">$25.00</span>
-                        </div>
-                        <h3 style="margin-bottom:var(--space-2);font-size:var(--text-md)">Telegram 50k Subs Crypto
-                            Channel Pinned Post</h3>
-                        <p
-                            style="color:var(--text-secondary);font-size:var(--text-sm);margin-bottom:var(--space-4);text-overflow:ellipsis;white-space:nowrap;overflow:hidden">
-                            Get your project seen by highly active crypto traders.</p>
-
-                        <div
-                            style="display:flex;align-items:center;gap:var(--space-2);border-top:1px solid var(--border-primary);padding-top:var(--space-3)">
-                            <div class="avatar"
-                                style="width:24px;height:24px;background:var(--accent-primary);color:#fff;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:10px">
-                                CK</div>
-                            <span style="font-size:var(--text-sm)">CryptoKing</span>
-                            <span style="margin-left:auto;font-size:var(--text-xs);color:var(--text-tertiary)">★ 4.9 (12
-                                reviews)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Listing 2 -->
-                <div class="card card--clickable" data-toast="Listing details are currently unavailable.">
-                    <div
-                        style="background:var(--bg-tertiary);width:100%;height:140px;display:flex;align-items:center;justify-content:center;font-size:var(--text-4xl);border-radius:var(--radius-lg) var(--radius-lg) 0 0">
-                        🛠️</div>
-                    <div class="card__body" style="padding:var(--space-4)">
-                        <div
-                            style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--space-2)">
-                            <span class="tag">Server Setup</span>
-                            <span style="font-weight:var(--font-bold);color:var(--success)">$50.00</span>
-                        </div>
-                        <h3 style="margin-bottom:var(--space-2);font-size:var(--text-md)">Professional Discord Server
-                            Configuration</h3>
-                        <p
-                            style="color:var(--text-secondary);font-size:var(--text-sm);margin-bottom:var(--space-4);text-overflow:ellipsis;white-space:nowrap;overflow:hidden">
-                            Complete setup with roles, permissions, and bots.</p>
-
-                        <div
-                            style="display:flex;align-items:center;gap:var(--space-2);border-top:1px solid var(--border-primary);padding-top:var(--space-3)">
-                            <div class="avatar"
-                                style="width:24px;height:24px;background:#8B5CF6;color:#fff;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:10px">
-                                DS</div>
-                            <span style="font-size:var(--text-sm)">DiscordSmith</span>
-                            <span style="margin-left:auto;font-size:var(--text-xs);color:var(--text-tertiary)">★ 5.0 (34
-                                reviews)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Listing 3 -->
-                <div class="card card--clickable" data-toast="Listing details are currently unavailable.">
-                    <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&q=80&w=600&h=300"
-                        alt="Graphics"
-                        style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-lg) var(--radius-lg) 0 0">
-                    <div class="card__body" style="padding:var(--space-4)">
-                        <div
-                            style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--space-2)">
-                            <span class="tag">Graphics</span>
-                            <span style="font-weight:var(--font-bold);color:var(--success)">$15.00</span>
-                        </div>
-                        <h3 style="margin-bottom:var(--space-2);font-size:var(--text-md)">Custom Group Logo & Banners
-                        </h3>
-                        <p
-                            style="color:var(--text-secondary);font-size:var(--text-sm);margin-bottom:var(--space-4);text-overflow:ellipsis;white-space:nowrap;overflow:hidden">
-                            I will design a modern logo and header for your group.</p>
-
-                        <div
-                            style="display:flex;align-items:center;gap:var(--space-2);border-top:1px solid var(--border-primary);padding-top:var(--space-3)">
-                            <div class="avatar"
-                                style="width:24px;height:24px;background:#EC4899;color:#fff;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:10px">
-                                AD</div>
-                            <span style="font-size:var(--text-sm)">ArtsByDan</span>
-                            <span style="margin-left:auto;font-size:var(--text-xs);color:var(--text-tertiary)">★ 4.8 (8
-                                reviews)</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="text-align:center;margin-top:var(--space-8)">
-                <button class="btn btn-secondary">Load More Listings</button>
-            </div>
+            </section>
+            <div id="reviews-section"></div>
+            <div id="similar-section"></div>
         </div>
     </main>
-
     <footer id="site-footer"></footer>
     <div id="toast-container" class="toast-container" aria-live="polite"></div>
     <div id="modal-container"></div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="/assets/js/supabase-config.js"></script>
     <script src="/assets/js/app.js"></script>
     <script src="/assets/js/components.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!CONFIG.features.marketplace) {
-                var main = document.getElementById('main-content');
-                if (main) {
-                    main.innerHTML = '<div class="content-wrapper" style="text-align:center;padding:var(--space-16) var(--space-4)">' +
-                        '<div style="font-size:var(--text-5xl);margin-bottom:var(--space-4)">🏪</div>' +
-                        '<h1 style="margin-bottom:var(--space-3)">Marketplace Coming Soon</h1>' +
-                        '<p style="color:var(--text-secondary);max-width:500px;margin:0 auto var(--space-6)">A trusted, escrow-backed marketplace for group promotions, shoutouts, and server setups is on the way.</p>' +
-                        '<a href="/" class="btn btn-primary">Back to Home</a>' +
-                        '</div>';
-                }
+        document.addEventListener('DOMContentLoaded', function() { initGroupProfile(); });
+
+        var groupData = null;
+
+        async function initGroupProfile() {
+            var params = new URLSearchParams(window.location.search);
+            var groupId = params.get('id');
+            if (!groupId) {
+                showError('No group specified. Please go back and select a group.');
                 return;
             }
-            document.getElementById('btn-post-listing')?.addEventListener('click', () => {
-                UI.toast('Please sign in to post.', 'info');
+
+            try {
+                groupData = await DB.groups.getOne(groupId);
+                if (!groupData) {
+                    showError('Group not found. It may have been removed or is pending review.');
+                    return;
+                }
+
+                DB.groups.incrementViews(groupId);
+                RecentlyViewed.add(groupData);
+
+                document.title = Security.sanitize(groupData.name) + ' | GroupsMix';
+                var metaDesc = document.querySelector('meta[name="description"]');
+                if (metaDesc) metaDesc.setAttribute('content', Security.sanitize((groupData.description || '').slice(0, 160)));
+
+                renderProfile();
+                loadReviews(groupId);
+                loadSimilar(groupData);
+            } catch (err) {
+                console.error('Group profile load:', err);
+                showError('Something went wrong loading this group. Please try again.');
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('profile-hero').innerHTML =
+                '<div style="text-align:center;padding:var(--space-16) 0">' +
+                '<div style="font-size:var(--text-5xl);margin-bottom:var(--space-4)">&#128542;</div>' +
+                '<h1 style="margin-bottom:var(--space-3)">Group Not Found</h1>' +
+                '<p style="color:var(--text-secondary);max-width:500px;margin:0 auto var(--space-6)">' + Security.sanitize(message) + '</p>' +
+                '<a href="/search" class="btn btn-primary">Browse Groups</a>' +
+                '</div>';
+        }
+
+        function renderProfile() {
+            var g = groupData;
+            var platform = CONFIG.platforms.find(function(p) { return p.id === g.platform; });
+            var category = CONFIG.categories.find(function(c) { return c.id === g.category; });
+            var trustScore = Algorithms.calculateTrustScore(g);
+            var tier = Algorithms.getEffectiveTier(g);
+            var tags = Array.isArray(g.tags) ? g.tags : [];
+            var goUrl = '/go?ref=' + Security.obfuscateLink(g.link || '');
+
+            var html = '<div class="profile-header">';
+            html += '<div class="profile-header__icon">' + (platform ? platform.emoji : '&#128241;') + '</div>';
+            html += '<div class="profile-header__info">';
+            html += '<h1 class="profile-header__name">' + Security.sanitize(g.name || 'Unnamed Group');
+            if (tier !== 'none') html += ' ' + UI.trustBadge(tier);
+            html += '</h1>';
+            html += '<div class="profile-header__platform">' + (platform ? platform.emoji + ' ' + Security.sanitize(platform.name) : '') +
+                (category ? ' &middot; ' + category.emoji + ' ' + Security.sanitize(category.name) : '') +
+                (g.country && g.country !== 'GLOBAL' ? ' &middot; ' + Security.sanitize(g.country) : '') +
+                (g.language ? ' &middot; ' + Security.sanitize(g.language) : '') + '</div>';
+            html += '<div class="profile-header__desc">' + Security.sanitize(g.description || 'No description available.') + '</div>';
+            if (tags.length) {
+                html += '<div class="profile-header__tags">';
+                for (var i = 0; i < tags.length; i++) {
+                    html += '<span class="tag">' + Security.sanitize(tags[i]) + '</span>';
+                }
+                html += '</div>';
+            }
+            html += '</div></div>';
+
+            html += '<div class="profile-meta">';
+            html += '<div class="profile-meta__item"><div class="profile-meta__value">' + UI.formatNumber(g.views || 0) + '</div><div class="profile-meta__label">Views</div></div>';
+            html += '<div class="profile-meta__item"><div class="profile-meta__value">' + (parseFloat(g.avg_rating) || 0).toFixed(1) + '</div><div class="profile-meta__label">Rating</div></div>';
+            html += '<div class="profile-meta__item"><div class="profile-meta__value">' + trustScore + '</div><div class="profile-meta__label">Trust Score</div></div>';
+            html += '<div class="profile-meta__item"><div class="profile-meta__value">' + UI.formatNumber(g.click_count || 0) + '</div><div class="profile-meta__label">Clicks</div></div>';
+            html += '</div>';
+
+            html += '<div class="profile-actions">';
+            html += '<a href="' + Security.sanitize(goUrl) + '" class="btn btn-primary btn-lg" id="visit-btn">&#128279; Visit Group</a>';
+            html += '<button class="btn btn-secondary" id="share-btn">&#128228; Share</button>';
+            html += '<button class="btn btn-secondary" id="save-btn">' + (Saved.isSaved(g.id) ? '&#10084;&#65039; Saved' : '&#129293; Save') + '</button>';
+            html += '<button class="btn btn-ghost" id="report-btn">&#128681; Report</button>';
+            html += '</div>';
+
+            document.getElementById('profile-hero').innerHTML = html;
+
+            document.getElementById('visit-btn').addEventListener('click', function() {
+                DB.groups.incrementClicks(g.id);
             });
-            document.querySelectorAll('[data-toast]').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    UI.toast(el.dataset.toast, 'info');
+            document.getElementById('share-btn').addEventListener('click', function() {
+                UI.shareGroup(g);
+            });
+            document.getElementById('save-btn').addEventListener('click', function() {
+                var btn = this;
+                if (Saved.isSaved(g.id)) {
+                    Saved.remove(g.id);
+                    btn.innerHTML = '&#129293; Save';
+                    UI.toast('Group removed from saved', 'info');
+                } else {
+                    Saved.add(g);
+                    btn.innerHTML = '&#10084;&#65039; Saved';
+                    UI.toast('Group saved!', 'success');
+                }
+            });
+            document.getElementById('report-btn').addEventListener('click', function() {
+                if (!Auth.requireAuth()) return;
+                UI.confirmModal('Report Group', 'Are you sure you want to report this group? Reported groups will be reviewed by our team.', function() {
+                    DB.groups.incrementReports(g.id);
+                    UI.toast('Group reported. Our team will review it.', 'success');
                 });
             });
-        });
+        }
+
+        async function loadReviews(groupId) {
+            var section = document.getElementById('reviews-section');
+            var html = '<div class="profile-section"><div class="profile-section__title">&#128172; Reviews</div>';
+            html += '<div id="reviews-list"><div class="skeleton" style="height:80px;border-radius:var(--radius-md);margin-bottom:var(--space-3)"></div></div>';
+            html += '<div class="review-form" id="review-form-wrapper">';
+            html += '<h4 style="margin-bottom:var(--space-3)">Leave a Review</h4>';
+            html += '<div id="review-stars" style="margin-bottom:var(--space-3)">' + UI.starRating(0, true) + '</div>';
+            html += '<textarea class="form-textarea" id="review-text" placeholder="Share your experience..." maxlength="500" style="margin-bottom:var(--space-3)"></textarea>';
+            html += '<button class="btn btn-primary" id="submit-review-btn">Submit Review</button>';
+            html += '</div></div>';
+            section.innerHTML = html;
+
+            var reviewRating = 0;
+            UI.initStarRating(document.getElementById('review-stars'), function(val) { reviewRating = val; });
+
+            document.getElementById('submit-review-btn').addEventListener('click', async function() {
+                if (!Auth.requireAuth()) return;
+                var text = document.getElementById('review-text').value.trim();
+                if (reviewRating < 1) { UI.toast('Please select a rating', 'error'); return; }
+
+                var hasReviewed = await DB.reviews.hasReviewed(groupId, Auth.getUserId());
+                if (hasReviewed) { UI.toast('You have already reviewed this group', 'warning'); return; }
+
+                var btn = this;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="btn-spinner"></span> Submitting...';
+
+                var result = await DB.reviews.submit({
+                    group_id: groupId,
+                    uid: Auth.getUserId(),
+                    display_name: Auth.getUser()?.display_name || 'Anonymous',
+                    rating: reviewRating,
+                    text: text
+                });
+
+                if (result) {
+                    UI.toast('Review submitted!', 'success');
+                    document.getElementById('review-text').value = '';
+                    loadReviewsList(groupId);
+                }
+                btn.disabled = false;
+                btn.innerHTML = 'Submit Review';
+            });
+
+            loadReviewsList(groupId);
+        }
+
+        async function loadReviewsList(groupId) {
+            var list = document.getElementById('reviews-list');
+            try {
+                var result = await DB.reviews.getByGroup(groupId, { limit: 10, offset: 0 });
+                if (!result.data || !result.data.length) {
+                    list.innerHTML = '<p style="color:var(--text-tertiary);text-align:center;padding:var(--space-4)">No reviews yet. Be the first to review!</p>';
+                    return;
+                }
+                list.innerHTML = result.data.map(function(r) { return UI.reviewCard(r); }).join('');
+            } catch (err) {
+                list.innerHTML = '<p style="color:var(--text-tertiary);text-align:center;padding:var(--space-4)">Unable to load reviews.</p>';
+            }
+        }
+
+        async function loadSimilar(group) {
+            var section = document.getElementById('similar-section');
+            try {
+                var similar = await DB.groups.getSimilar(group.id, group.category, group.platform);
+                if (!similar || !similar.length) { section.innerHTML = ''; return; }
+                var html = '<div class="profile-section"><div class="profile-section__title">&#128279; Similar Groups</div>';
+                html += '<div class="similar-grid">';
+                for (var i = 0; i < Math.min(similar.length, 6); i++) {
+                    html += UI.groupCard(similar[i]);
+                }
+                html += '</div></div>';
+                section.innerHTML = html;
+            } catch (err) {
+                section.innerHTML = '';
+            }
+        }
     </script>
 </body>
-
 </html>
